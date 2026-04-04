@@ -1,6 +1,6 @@
 # .github/workflows
 
-Workflow entrypoints for CI, coverage, E2E, AGENTS validation, and repository policy checks.
+Workflow entrypoints for CI, pull request coverage comments, AGENTS validation, and repository policy checks.
 
 ## Directories
 
@@ -9,8 +9,6 @@ Workflow entrypoints for CI, coverage, E2E, AGENTS validation, and repository po
 ## Files
 
 - `ci.yml`: Main CI workflow.
-- `pr-coverage.yml`: Pull request coverage reporting workflow.
-- `upload-coverage.yml`: Coverage upload workflow.
 - `validate-agents.yml`: AGENTS hierarchy validation workflow for AGENTS and validator changes.
 
 ## Writing Rules
