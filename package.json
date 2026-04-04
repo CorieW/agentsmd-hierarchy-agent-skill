@@ -1,0 +1,48 @@
+{
+  "name": "agents-hierarchy",
+  "version": "0.1.0",
+  "description": "CLI and installable skill bundle for maintaining hierarchical AGENTS.md files.",
+  "type": "module",
+  "bin": {
+    "agents-hierarchy": "./bin/agents-hierarchy.mjs"
+  },
+  "files": [
+    "bin/",
+    "agents-hierarchy/"
+  ],
+  "scripts": {
+    "agents:check": "node ./agents-hierarchy/scripts/validate-agents.mjs --check",
+    "agents:fix": "node ./agents-hierarchy/scripts/validate-agents.mjs --fix",
+    "dev:install-codex-skill": "node ./scripts/dev-install-codex-skill.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": [
+    "agents",
+    "codex",
+    "claude",
+    "cursor",
+    "skill",
+    "cli"
+  ],
+  "author": "Corie Watson",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^7.8.4",
+    "commander": "^14.0.0",
+    "fs-extra": "^11.3.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "vitest": "^3.2.4"
+  }
+}
