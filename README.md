@@ -201,6 +201,12 @@ During publish, the workflow also creates the matching GitHub tag and GitHub Rel
 
 - Node.js `>=20`
 
+## Contributing
+
+Contribution PRs are welcome.
+
+For user-facing changes, please include a Changeset by running `npm run changeset` and committing the generated file under `.changeset/` alongside your update.
+
 ## License
 
 MIT
