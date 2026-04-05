@@ -181,6 +181,20 @@ The published npm package includes:
 - `bin/` for the executable entrypoint
 - `agentsmd-hierarchy/` for the distributable skill bundle and helper scripts
 
+## Releases
+
+This repo now uses Changesets for versioning and npm publishing.
+
+Create a release note for user-facing changes with:
+
+```bash
+npm run changeset
+```
+
+When those changesets land on `main`, the release workflow will open or update a release PR with the version bump and changelog updates. Merging that PR triggers the same workflow to publish the package to npm.
+
+During publish, the workflow also creates the matching GitHub tag and GitHub Release automatically, so npm releases and GitHub releases stay aligned.
+
 ## Requirements
 
 - Node.js `>=20`

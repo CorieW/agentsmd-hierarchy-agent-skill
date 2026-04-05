@@ -32,3 +32,7 @@ Repository root for the AGENTS Hierarchy CLI package, published skill bundle, an
 - Keep repo-only helpers in `scripts/` and user-facing runtime entrypoints in `bin/`.
 - Refresh generated package artifacts with npm commands rather than manual edits.
 - Update this file when a package-level directory, root file, or release responsibility changes.
+
+## AGENTS Hierarchy
+
+- Exclude `.changeset` from AGENTS scanning because Changesets treats Markdown files there as release note entries.
