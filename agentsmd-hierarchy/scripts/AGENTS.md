@@ -1,4 +1,4 @@
-# agents-hierarchy/scripts
+# agentsmd-hierarchy/scripts
 
 Bundled CLI entrypoints and prompt helpers that support the skill's scaffold, sync, and validation workflow.
 

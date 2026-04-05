@@ -12,7 +12,9 @@ const repositoryRoot = path.resolve(
 );
 
 async function makeTempDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'agents-hierarchy-'));
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), 'agentsmd-hierarchy-'),
+  );
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -31,7 +33,7 @@ describe('CLI integration', () => {
     const result = spawnSync(
       process.execPath,
       [
-        'bin/agents-hierarchy.mjs',
+        'bin/agentsmd-hierarchy.mjs',
         'install',
         '--tool',
         'codex',
@@ -64,7 +66,7 @@ describe('CLI integration', () => {
     const result = spawnSync(
       process.execPath,
       [
-        path.join(repositoryRoot, 'bin/agents-hierarchy.mjs'),
+        path.join(repositoryRoot, 'bin/agentsmd-hierarchy.mjs'),
         'check',
         '--debug',
       ],

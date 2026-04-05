@@ -1,4 +1,4 @@
-# agents-hierarchy/references
+# agentsmd-hierarchy/references
 
 Reference material that backs the skill instructions, including the canonical AGENTS convention and copy-pastable example layouts.
 

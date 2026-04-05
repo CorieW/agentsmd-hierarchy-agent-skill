@@ -1,4 +1,4 @@
-# agents-hierarchy/scripts/lib
+# agentsmd-hierarchy/scripts/lib
 
 Shared implementation modules for the bundled CLI, including structured logging, install planning, command registration, and AGENTS validation.
 

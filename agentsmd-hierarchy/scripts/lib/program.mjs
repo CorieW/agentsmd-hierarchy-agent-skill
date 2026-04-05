@@ -31,7 +31,7 @@ async function handleCommandError(error) {
   }
 
   if (isCommandError(error)) {
-    const logger = createLogger('agents-hierarchy');
+    const logger = createLogger('agentsmd-hierarchy');
     logger.error(error.message);
     return error.exitCode;
   }
@@ -50,7 +50,7 @@ export function createProgram(runtime = {}) {
   };
 
   program
-    .name('agents-hierarchy')
+    .name('agentsmd-hierarchy')
     .description(
       'Validate, scaffold, and install the AGENTS Hierarchy skill bundle.',
     )
@@ -74,7 +74,7 @@ export function createProgram(runtime = {}) {
     }
     const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
     if (exitCode !== 0) {
-      throw new CommanderError(exitCode, 'agents-hierarchy.check.failed', '');
+      throw new CommanderError(exitCode, 'agentsmd-hierarchy.check.failed', '');
     }
   });
 
@@ -95,7 +95,7 @@ export function createProgram(runtime = {}) {
     }
     const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
     if (exitCode !== 0) {
-      throw new CommanderError(exitCode, 'agents-hierarchy.fix.failed', '');
+      throw new CommanderError(exitCode, 'agentsmd-hierarchy.fix.failed', '');
     }
   });
 
@@ -111,7 +111,7 @@ export function createProgram(runtime = {}) {
     }
     const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
     if (exitCode !== 0) {
-      throw new CommanderError(exitCode, 'agents-hierarchy.sync.failed', '');
+      throw new CommanderError(exitCode, 'agentsmd-hierarchy.sync.failed', '');
     }
   });
 
@@ -130,7 +130,7 @@ export function createProgram(runtime = {}) {
     if (exitCode !== 0) {
       throw new CommanderError(
         exitCode,
-        'agents-hierarchy.scaffold.failed',
+        'agentsmd-hierarchy.scaffold.failed',
         '',
       );
     }
@@ -167,7 +167,7 @@ export function createProgram(runtime = {}) {
       if (exitCode !== 0) {
         throw new CommanderError(
           exitCode,
-          'agents-hierarchy.install.failed',
+          'agentsmd-hierarchy.install.failed',
           '',
         );
       }

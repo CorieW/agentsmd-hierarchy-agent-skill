@@ -9,7 +9,7 @@ import { runValidateAgentsCommand } from './lib/validate-agents-core.mjs';
 function normalizeDirectory(rawValue) {
   if (!rawValue) {
     throw new CommandError(
-      'Usage: node .codex/skills/agents-hierarchy/scripts/scaffold-agents.mjs <repo-relative-directory>',
+      'Usage: node .codex/skills/agentsmd-hierarchy/scripts/scaffold-agents.mjs <repo-relative-directory>',
     );
   }
 

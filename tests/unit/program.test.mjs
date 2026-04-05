@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createProgram } from '../../agents-hierarchy/scripts/lib/program.mjs';
+import { createProgram } from '../../agentsmd-hierarchy/scripts/lib/program.mjs';
 
 function getCommand(program, name) {
   const command = program.commands.find(

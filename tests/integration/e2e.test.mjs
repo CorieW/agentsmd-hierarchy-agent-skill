@@ -11,28 +11,30 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '../..',
 );
-const cliPath = path.join(repositoryRoot, 'bin', 'agents-hierarchy.mjs');
+const cliPath = path.join(repositoryRoot, 'bin', 'agentsmd-hierarchy.mjs');
 const validateScriptPath = path.join(
   repositoryRoot,
-  'agents-hierarchy',
+  'agentsmd-hierarchy',
   'scripts',
   'validate-agents.mjs',
 );
 const syncScriptPath = path.join(
   repositoryRoot,
-  'agents-hierarchy',
+  'agentsmd-hierarchy',
   'scripts',
   'sync-agents.mjs',
 );
 const scaffoldScriptPath = path.join(
   repositoryRoot,
-  'agents-hierarchy',
+  'agentsmd-hierarchy',
   'scripts',
   'scaffold-agents.mjs',
 );
 
 async function makeTempDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'agents-hierarchy-'));
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), 'agentsmd-hierarchy-'),
+  );
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -242,7 +244,7 @@ describe('CLI install end-to-end workflows', () => {
         'personal',
         '--no-prompt',
       ],
-      expectedPath: ['.codex', 'skills', 'agents-hierarchy', 'SKILL.md'],
+      expectedPath: ['.codex', 'skills', 'agentsmd-hierarchy', 'SKILL.md'],
       label: 'installs the Codex skill bundle',
       useHomeAsCwd: true,
     },
@@ -260,7 +262,7 @@ describe('CLI install end-to-end workflows', () => {
       expectedPath: [
         '.claude',
         'skills',
-        'agents-hierarchy',
+        'agentsmd-hierarchy',
         'scripts',
         'validate-agents.mjs',
       ],
@@ -276,7 +278,7 @@ describe('CLI install end-to-end workflows', () => {
         'personal',
         '--no-prompt',
       ],
-      expectedPath: ['.cursor', 'commands', 'agents-hierarchy.md'],
+      expectedPath: ['.cursor', 'commands', 'agentsmd-hierarchy.md'],
       label: 'installs the Cursor command bundle',
       useHomeAsCwd: true,
     },
@@ -344,7 +346,12 @@ describe('CLI install end-to-end workflows', () => {
     ).resolves.toBe(true);
     await expect(
       fs.pathExists(
-        path.join(pluginDestination, 'skills', 'agents-hierarchy', 'SKILL.md'),
+        path.join(
+          pluginDestination,
+          'skills',
+          'agentsmd-hierarchy',
+          'SKILL.md',
+        ),
       ),
     ).resolves.toBe(true);
 
@@ -387,7 +394,7 @@ describe('CLI install end-to-end workflows', () => {
       rootDirectory,
       '.codex',
       'skills',
-      'agents-hierarchy',
+      'agentsmd-hierarchy',
     );
     await fs.outputFile(
       path.join(destination, 'README.md'),

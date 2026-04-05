@@ -1,0 +1,4 @@
+interface:
+  display_name: 'AGENTS Hierarchy'
+  short_description: 'Navigate and prefer bundled CLI helpers to scaffold, sync, validate, and maintain layered AGENTS.md files'
+  default_prompt: "Use $agentsmd-hierarchy to read this repository's AGENTS.md chain, follow the local rules, prefer the bundled or matching repo CLI helpers for scaffold, sync, and validation work before manual AGENTS editing, add --debug to those helper scripts when extra trace detail would help, then validate the result before finishing."

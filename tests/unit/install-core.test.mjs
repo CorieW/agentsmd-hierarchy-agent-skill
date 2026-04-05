@@ -5,12 +5,14 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   renderCursorCommandFile,
   resolveInstallPlan,
-} from '../../agents-hierarchy/scripts/lib/install-core.mjs';
+} from '../../agentsmd-hierarchy/scripts/lib/install-core.mjs';
 
 const temporaryDirectories = [];
 
 async function makeTempDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'agents-hierarchy-'));
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), 'agentsmd-hierarchy-'),
+  );
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -42,7 +44,7 @@ describe('resolveInstallPlan', () => {
     );
 
     expect(plan.destination).toBe(
-      path.join(homeDirectory, '.codex', 'skills', 'agents-hierarchy'),
+      path.join(homeDirectory, '.codex', 'skills', 'agentsmd-hierarchy'),
     );
     expect(plan.mode).toBe('skill');
   });
@@ -63,7 +65,7 @@ describe('resolveInstallPlan', () => {
     );
 
     expect(plan.destination).toBe(
-      path.join(projectRoot, '.cursor', 'commands', 'agents-hierarchy.md'),
+      path.join(projectRoot, '.cursor', 'commands', 'agentsmd-hierarchy.md'),
     );
     expect(plan.mode).toBe('command');
   });
@@ -84,7 +86,7 @@ describe('resolveInstallPlan', () => {
     );
 
     expect(plan.destination).toBe(
-      path.join(cwd, '.codex', 'skills', 'agents-hierarchy'),
+      path.join(cwd, '.codex', 'skills', 'agentsmd-hierarchy'),
     );
     expect(plan.projectRoot).toBe(cwd);
   });
@@ -116,8 +118,8 @@ describe('renderCursorCommandFile', () => {
   it('mentions the supported command flow and debug mode', () => {
     const content = renderCursorCommandFile();
 
-    expect(content).toContain('agents-hierarchy check <path>');
-    expect(content).toContain('agents-hierarchy fix <path>');
+    expect(content).toContain('agentsmd-hierarchy check <path>');
+    expect(content).toContain('agentsmd-hierarchy fix <path>');
     expect(content).toContain('--debug');
   });
 });

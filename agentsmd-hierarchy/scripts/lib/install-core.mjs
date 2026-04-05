@@ -8,10 +8,10 @@ import fs from 'fs-extra';
 import { createLogger } from './cli-logger.mjs';
 import { CommandError, isCommandError } from './errors.mjs';
 
-const PACKAGE_NAME = 'agents-hierarchy';
-const RECEIPT_FILE_NAME = '.agents-hierarchy-install.json';
+const PACKAGE_NAME = 'agentsmd-hierarchy';
+const RECEIPT_FILE_NAME = '.agentsmd-hierarchy-install.json';
 const CURSOR_COMMAND_RECEIPT_FILE_NAME =
-  '.agents-hierarchy-command-install.json';
+  '.agentsmd-hierarchy-command-install.json';
 
 function getPackageRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -23,7 +23,7 @@ function getPackageMetadata() {
 }
 
 function getSkillSourceDirectory() {
-  return path.join(getPackageRoot(), 'agents-hierarchy');
+  return path.join(getPackageRoot(), 'agentsmd-hierarchy');
 }
 
 function canPrompt(stdout = process.stdout, stdin = process.stdin) {
@@ -328,15 +328,15 @@ export function renderCursorCommandFile() {
   return [
     '# AGENTS Hierarchy',
     '',
-    'Use the `agents-hierarchy` CLI to inspect or refresh layered `AGENTS.md` files.',
+    'Use the `agentsmd-hierarchy` CLI to inspect or refresh layered `AGENTS.md` files.',
     '',
     'Preferred commands:',
-    '- `agents-hierarchy check <path>` to validate AGENTS coverage.',
-    '- `agents-hierarchy fix <path>` to scaffold or refresh AGENTS.md files.',
-    '- `agents-hierarchy scaffold <dir>` when a new directory needs its first AGENTS.md.',
+    '- `agentsmd-hierarchy check <path>` to validate AGENTS coverage.',
+    '- `agentsmd-hierarchy fix <path>` to scaffold or refresh AGENTS.md files.',
+    '- `agentsmd-hierarchy scaffold <dir>` when a new directory needs its first AGENTS.md.',
     '- Add `--debug` on any command when trace output would help.',
     '',
-    'If the CLI is not on `PATH`, fall back to `npx -y agents-hierarchy <subcommand> ...`.',
+    'If the CLI is not on `PATH`, fall back to `npx -y agentsmd-hierarchy <subcommand> ...`.',
   ].join('\n');
 }
 

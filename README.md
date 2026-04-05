@@ -2,7 +2,7 @@
 
 > A sharp little CLI and installable skill bundle for keeping layered `AGENTS.md` docs accurate, readable, and in sync with your repo.
 
-`agents-hierarchy` packages two things together:
+`agentsmd-hierarchy` packages two things together:
 
 - A CLI for checking, scaffolding, and refreshing hierarchical `AGENTS.md` files
 - An installable skill bundle you can drop into Codex, Claude Code, Cursor, or a Codex plugin directory
@@ -10,6 +10,8 @@
 ## Why This Exists
 
 Large repos get messy fast. `AGENTS.md` files work best when they behave like a map: each directory explains its immediate children, local writing rules, and how guidance cascades down the tree.
+
+That keeps any single `AGENTS.md` lighter, which reduces context load and can improve model performance. It is useful for humans too, because the same hierarchy makes the project's structure easier to understand.
 
 This package helps you keep that map healthy without hand-maintaining everything:
 
@@ -31,7 +33,7 @@ This package helps you keep that map healthy without hand-maintaining everything
 If you just want to install it and go:
 
 ```bash
-npx -y agents-hierarchy install
+npx -y agentsmd-hierarchy install
 ```
 
 That launches an interactive installer and lets you choose the target tool and scope.
@@ -39,13 +41,13 @@ That launches an interactive installer and lets you choose the target tool and s
 If you prefer deterministic installs:
 
 ```bash
-npx -y agents-hierarchy install --tool codex --scope personal --no-prompt
+npx -y agentsmd-hierarchy install --tool codex --scope personal --no-prompt
 ```
 
 If you want the command available on your `PATH`:
 
 ```bash
-npm install -g agents-hierarchy
+npm install -g agentsmd-hierarchy
 ```
 
 ## Install Options
@@ -53,15 +55,15 @@ npm install -g agents-hierarchy
 ### Personal install
 
 ```bash
-npx -y agents-hierarchy install --tool codex --scope personal --no-prompt
+npx -y agentsmd-hierarchy install --tool codex --scope personal --no-prompt
 ```
 
 ```bash
-npx -y agents-hierarchy install --tool claude --scope personal --no-prompt
+npx -y agentsmd-hierarchy install --tool claude --scope personal --no-prompt
 ```
 
 ```bash
-npx -y agents-hierarchy install --tool cursor --scope personal --no-prompt
+npx -y agentsmd-hierarchy install --tool cursor --scope personal --no-prompt
 ```
 
 ### Project install
@@ -69,24 +71,24 @@ npx -y agents-hierarchy install --tool cursor --scope personal --no-prompt
 Run this from inside a git repo, or pass `--project-root`.
 
 ```bash
-npx -y agents-hierarchy install --tool codex --scope project --no-prompt
+npx -y agentsmd-hierarchy install --tool codex --scope project --no-prompt
 ```
 
 ```bash
-npx -y agents-hierarchy install --tool claude --scope project --no-prompt
+npx -y agentsmd-hierarchy install --tool claude --scope project --no-prompt
 ```
 
 ```bash
-npx -y agents-hierarchy install --tool cursor --scope project --no-prompt
+npx -y agentsmd-hierarchy install --tool cursor --scope project --no-prompt
 ```
 
 ### Export a Codex plugin bundle
 
 ```bash
-npx -y agents-hierarchy install \
+npx -y agentsmd-hierarchy install \
   --tool codex \
   --mode plugin \
-  --dest ./plugins/agents-hierarchy \
+  --dest ./plugins/agentsmd-hierarchy \
   --no-prompt
 ```
 
@@ -95,9 +97,9 @@ npx -y agents-hierarchy install \
 Once installed globally, or via `npx`, the main workflow looks like this:
 
 ```bash
-agents-hierarchy check .
-agents-hierarchy fix .
-agents-hierarchy scaffold src/components
+agentsmd-hierarchy check .
+agentsmd-hierarchy fix .
+agentsmd-hierarchy scaffold src/components
 ```
 
 ### `check [path]`
@@ -105,8 +107,8 @@ agents-hierarchy scaffold src/components
 Validate `AGENTS.md` files without changing them.
 
 ```bash
-agents-hierarchy check packages/app
-agents-hierarchy check . --strict-placeholders
+agentsmd-hierarchy check packages/app
+agentsmd-hierarchy check . --strict-placeholders
 ```
 
 ### `fix [path]`
@@ -114,8 +116,8 @@ agents-hierarchy check . --strict-placeholders
 Refresh missing or stale `AGENTS.md` files.
 
 ```bash
-agents-hierarchy fix .
-agents-hierarchy fix tests
+agentsmd-hierarchy fix .
+agentsmd-hierarchy fix tests
 ```
 
 ### `sync [path]`
@@ -123,7 +125,7 @@ agents-hierarchy fix tests
 Compatibility alias for `fix`.
 
 ```bash
-agents-hierarchy sync .
+agentsmd-hierarchy sync .
 ```
 
 ### `scaffold <dir>`
@@ -131,7 +133,7 @@ agents-hierarchy sync .
 Create the first `AGENTS.md` for a repo-relative directory.
 
 ```bash
-agents-hierarchy scaffold src/features/payments
+agentsmd-hierarchy scaffold src/features/payments
 ```
 
 ### `install`
@@ -139,7 +141,7 @@ agents-hierarchy scaffold src/features/payments
 Install the packaged skill bundle into a supported tool.
 
 ```bash
-agents-hierarchy install --tool codex --scope project --no-prompt
+agentsmd-hierarchy install --tool codex --scope project --no-prompt
 ```
 
 Helpful flags:
@@ -153,9 +155,9 @@ Helpful flags:
 
 Depending on the target, this package installs:
 
-- A full skill bundle under `.codex/skills/agents-hierarchy/`
-- A full skill bundle under `.claude/skills/agents-hierarchy/`
-- A Cursor command file under `.cursor/commands/agents-hierarchy.md`
+- A full skill bundle under `.codex/skills/agentsmd-hierarchy/`
+- A full skill bundle under `.claude/skills/agentsmd-hierarchy/`
+- A Cursor command file under `.cursor/commands/agentsmd-hierarchy.md`
 - A Codex plugin bundle at the destination you choose
 
 The shipped skill teaches agents to:
@@ -177,7 +179,7 @@ npm test
 The published npm package includes:
 
 - `bin/` for the executable entrypoint
-- `agents-hierarchy/` for the distributable skill bundle and helper scripts
+- `agentsmd-hierarchy/` for the distributable skill bundle and helper scripts
 
 ## Requirements
 

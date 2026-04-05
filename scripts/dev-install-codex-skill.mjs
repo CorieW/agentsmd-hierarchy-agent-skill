@@ -8,12 +8,12 @@ const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
 );
-const sourceDirectory = path.join(repositoryRoot, 'agents-hierarchy');
+const sourceDirectory = path.join(repositoryRoot, 'agentsmd-hierarchy');
 const destinationDirectory = path.join(
   repositoryRoot,
   '.codex',
   'skills',
-  'agents-hierarchy',
+  'agentsmd-hierarchy',
 );
 
 await fs.remove(destinationDirectory);

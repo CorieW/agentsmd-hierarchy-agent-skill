@@ -3,10 +3,10 @@ import path from 'node:path';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { afterEach, describe, expect, it } from 'vitest';
 import fs from 'fs-extra';
-import { runInstallCommand } from '../../agents-hierarchy/scripts/lib/install-core.mjs';
+import { runInstallCommand } from '../../agentsmd-hierarchy/scripts/lib/install-core.mjs';
 
 const temporaryDirectories = [];
-const RECEIPT_FILE_NAME = '.agents-hierarchy-install.json';
+const RECEIPT_FILE_NAME = '.agentsmd-hierarchy-install.json';
 
 function createBufferStream() {
   const chunks = [];
@@ -22,7 +22,9 @@ function createBufferStream() {
 }
 
 async function makeTempDirectory() {
-  const directory = await mkdtemp(path.join(os.tmpdir(), 'agents-hierarchy-'));
+  const directory = await mkdtemp(
+    path.join(os.tmpdir(), 'agentsmd-hierarchy-'),
+  );
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -79,7 +81,7 @@ describe('runInstallCommand', () => {
             homeDirectory,
             '.codex',
             'skills',
-            'agents-hierarchy',
+            'agentsmd-hierarchy',
             'SKILL.md',
           ),
         ),
@@ -112,7 +114,7 @@ describe('runInstallCommand', () => {
             projectRoot,
             '.codex',
             'skills',
-            'agents-hierarchy',
+            'agentsmd-hierarchy',
             RECEIPT_FILE_NAME,
           ),
         ),
@@ -147,7 +149,7 @@ describe('runInstallCommand', () => {
             homeDirectory,
             '.claude',
             'skills',
-            'agents-hierarchy',
+            'agentsmd-hierarchy',
             'scripts',
             'validate-agents.mjs',
           ),
@@ -181,7 +183,7 @@ describe('runInstallCommand', () => {
             projectRoot,
             '.claude',
             'skills',
-            'agents-hierarchy',
+            'agentsmd-hierarchy',
             'SKILL.md',
           ),
         ),
@@ -214,7 +216,7 @@ describe('runInstallCommand', () => {
         homeDirectory,
         '.cursor',
         'commands',
-        'agents-hierarchy.md',
+        'agentsmd-hierarchy.md',
       );
       expect(await readFile(commandPath, 'utf8')).toContain('--debug');
     },
@@ -241,7 +243,12 @@ describe('runInstallCommand', () => {
       expect(result.exitCode).toBe(0);
       await expect(
         fs.pathExists(
-          path.join(projectRoot, '.cursor', 'commands', 'agents-hierarchy.md'),
+          path.join(
+            projectRoot,
+            '.cursor',
+            'commands',
+            'agentsmd-hierarchy.md',
+          ),
         ),
       ).resolves.toBe(true);
     },
@@ -252,7 +259,7 @@ describe('runInstallCommand', () => {
     const pluginDestination = path.join(
       rootDirectory,
       'plugins',
-      'agents-hierarchy',
+      'agentsmd-hierarchy',
     );
     const result = await runInstall(
       {
@@ -279,7 +286,12 @@ describe('runInstallCommand', () => {
     ).resolves.toBe(true);
     await expect(
       fs.pathExists(
-        path.join(pluginDestination, 'skills', 'agents-hierarchy', 'SKILL.md'),
+        path.join(
+          pluginDestination,
+          'skills',
+          'agentsmd-hierarchy',
+          'SKILL.md',
+        ),
       ),
     ).resolves.toBe(true);
   });

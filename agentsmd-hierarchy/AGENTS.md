@@ -1,4 +1,4 @@
-# agents-hierarchy
+# agentsmd-hierarchy
 
 Distributable skill bundle for AGENTS Hierarchy, combining the main skill instructions with agent metadata, reference docs, and bundled helper scripts.
 

@@ -173,7 +173,7 @@ export function parseValidateArguments(argv, repoRoot) {
 
     if (scope.scopePath !== '.' || scope.scopeType !== 'directory') {
       throw new CommandError(
-        'Usage: node .codex/skills/agents-hierarchy/scripts/validate-agents.mjs [--check|--fix] [repo-relative-path-or-agents-file] [--strict-placeholders] [--debug]',
+        'Usage: node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs [--check|--fix] [repo-relative-path-or-agents-file] [--strict-placeholders] [--debug]',
       );
     }
 

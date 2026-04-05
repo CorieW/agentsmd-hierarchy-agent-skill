@@ -1,4 +1,4 @@
-# agents-hierarchy/agents
+# agentsmd-hierarchy/agents
 
 Agent registry metadata for the skill bundle, used to present the skill name, summary, and default prompt in supported tools.
 

@@ -6,7 +6,7 @@ Repository root for the AGENTS Hierarchy CLI package, published skill bundle, an
 
 - `.codex/`: Repo-local Codex configuration and installed skill copies used during development.
 - `.github/`: GitHub automation for CI, reusable actions, coverage reporting, and repository policy checks.
-- `agents-hierarchy/`: Canonical distributable skill bundle content, including prompts, references, and helper scripts.
+- `agentsmd-hierarchy/`: Canonical distributable skill bundle content, including prompts, references, and helper scripts.
 - `bin/`: Published executable entrypoints for the npm package.
 - `scripts/`: Repo-only development helpers that support local workflows.
 - `tests/`: Automated coverage for CLI behavior and shared library modules.
@@ -28,7 +28,7 @@ Repository root for the AGENTS Hierarchy CLI package, published skill bundle, an
 
 ## Writing Rules
 
-- Treat `agents-hierarchy/` as the source of truth for the shipped skill bundle and keep root metadata aligned with it.
+- Treat `agentsmd-hierarchy/` as the source of truth for the shipped skill bundle and keep root metadata aligned with it.
 - Keep repo-only helpers in `scripts/` and user-facing runtime entrypoints in `bin/`.
 - Refresh generated package artifacts with npm commands rather than manual edits.
 - Update this file when a package-level directory, root file, or release responsibility changes.

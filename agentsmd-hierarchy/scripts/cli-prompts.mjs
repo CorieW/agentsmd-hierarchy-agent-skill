@@ -89,7 +89,7 @@ export async function resolveRequiredDirectory({
 
   if (!canPrompt()) {
     throw new Error(
-      'Usage: node .codex/skills/agents-hierarchy/scripts/scaffold-agents.mjs <repo-relative-directory>',
+      'Usage: node .codex/skills/agentsmd-hierarchy/scripts/scaffold-agents.mjs <repo-relative-directory>',
     );
   }
 

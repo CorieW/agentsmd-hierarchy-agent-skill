@@ -1,18 +1,18 @@
 {
-  "name": "agents-hierarchy",
+  "name": "agentsmd-hierarchy",
   "version": "0.1.0",
   "description": "CLI and installable skill bundle for maintaining hierarchical AGENTS.md files.",
   "type": "module",
   "bin": {
-    "agents-hierarchy": "./bin/agents-hierarchy.mjs"
+    "agentsmd-hierarchy": "bin/agentsmd-hierarchy.mjs"
   },
   "files": [
     "bin/",
-    "agents-hierarchy/"
+    "agentsmd-hierarchy/"
   ],
   "scripts": {
-    "agents:check": "node ./agents-hierarchy/scripts/validate-agents.mjs --check",
-    "agents:fix": "node ./agents-hierarchy/scripts/validate-agents.mjs --fix",
+    "agents:check": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --check",
+    "agents:fix": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --fix",
     "dev:install-codex-skill": "node ./scripts/dev-install-codex-skill.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
