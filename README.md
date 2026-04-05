@@ -183,15 +183,17 @@ The published npm package includes:
 
 ## Releases
 
-This repo now uses Changesets for versioning and npm publishing.
+This repo uses Changesets for versioning and npm publishing.
 
-Create a release note for user-facing changes with:
+Release steps:
 
-```bash
-npm run changeset
-```
-
-When those changesets land on `main`, the release workflow will open or update a release PR with the version bump and changelog updates. Merging that PR triggers the same workflow to publish the package to npm.
+1. Run `npm run changeset` for each user-facing change and commit the resulting file under `.changeset/`.
+2. Merge those changesets to `main`.
+3. In GitHub, open `Actions` and run the `Release` workflow manually.
+4. Wait for the workflow to open or update the release PR with the version bump and changelog changes.
+5. Review and merge that release PR into `main`.
+6. In GitHub, run the `Release` workflow manually again from `main`.
+7. Wait for the workflow to publish the package to npm.
 
 During publish, the workflow also creates the matching GitHub tag and GitHub Release automatically, so npm releases and GitHub releases stay aligned.
 

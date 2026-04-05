@@ -1,0 +1,93 @@
+# Require a changeset for release-relevant pull requests unless explicitly skipped.
+
+name: Require Changeset
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+      - ready_for_review
+
+jobs:
+  require-changeset:
+    name: Require Changeset
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Check whether a changeset is required
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const labels = new Set((pr.labels || []).map((label) => label.name));
+            const changedFiles = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              per_page: 100,
+            });
+
+            const filenames = changedFiles.map((file) => file.filename);
+            const hasChangeset = filenames.some(
+              (filename) =>
+                filename.startsWith(".changeset/") &&
+                filename !== ".changeset/README.md" &&
+                filename.endsWith(".md"),
+            );
+            const isReleasePr =
+              pr.head.ref.startsWith("changeset-release/") ||
+              pr.title === "chore: release package";
+            const isSkipped = labels.has("no-changeset");
+            const releaseRelevantPatterns = [/^bin\//, /^agentsmd-hierarchy\//, /^package\.json$/];
+            const releaseRelevantFiles = filenames.filter((filename) =>
+              releaseRelevantPatterns.some((pattern) => pattern.test(filename)),
+            );
+
+            const reasons = [];
+
+            if (isReleasePr) {
+              reasons.push("release PR");
+            }
+
+            if (isSkipped) {
+              reasons.push("`no-changeset` label");
+            }
+
+            if (hasChangeset) {
+              reasons.push("changeset file present");
+            }
+
+            if (releaseRelevantFiles.length === 0) {
+              reasons.push("no release-relevant files changed");
+            }
+
+            if (reasons.length > 0) {
+              core.notice(`Changeset check passed: ${reasons.join(", ")}.`);
+              await core.summary
+                .addHeading("Changeset check passed")
+                .addList(reasons)
+                .write();
+              return;
+            }
+
+            const message = [
+              "This pull request changes published package files but does not include a changeset.",
+              "",
+              "Add a `.changeset/*.md` file with `npm run changeset`, or apply the `no-changeset` label if this PR should not produce a release note.",
+              "",
+              "Release-relevant files:",
+              ...releaseRelevantFiles.map((filename) => `- ${filename}`),
+            ].join("\n");
+
+            await core.summary
+              .addHeading("Changeset required")
+              .addRaw(message, true)
+              .write();
+            core.setFailed(message);
