@@ -31,5 +31,4 @@ Frontend application source for route definitions, UI components, and bootstrapp
 
 - Separate bootstrap, shared logic, components, and routes by responsibility.
 - Treat generated router output as read-only.
-- Update this file whenever a new immediate child directory or shared source file appears.
 ```

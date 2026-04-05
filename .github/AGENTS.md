@@ -14,4 +14,3 @@ GitHub-specific automation configuration for dependency updates, CI workflows, a
 
 - Keep shared GitHub automation intent documented here as workflow inventory changes.
 - Prefer reusable workflow structure and clear workflow names because these files surface directly in the GitHub UI.
-- Update this file when GitHub automation files or directories are added, removed, or repurposed.

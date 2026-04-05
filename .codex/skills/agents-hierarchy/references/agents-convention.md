@@ -38,7 +38,7 @@ Document only the directory's immediate children. Do not list grandchildren in t
 
 - Keep 2-6 concise bullets.
 - Focus on how to edit files in the directory, not on general coding advice already covered higher in the tree.
-- Include a reminder to update the `AGENTS.md` when immediate children or responsibilities change.
+- Avoid self-referential reminders about updating the `AGENTS.md`; use the bullets for concrete local editing guidance.
 
 ## Cascading Behavior
 

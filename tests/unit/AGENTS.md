@@ -15,4 +15,3 @@ Unit coverage for shared library modules where the behavior can be validated dir
 
 - Keep tests focused on exported helpers and command contracts with small deterministic inputs.
 - Avoid duplicating end-to-end scenarios that are already covered by `tests/integration/`.
-- Update this file when unit-level coverage areas change.

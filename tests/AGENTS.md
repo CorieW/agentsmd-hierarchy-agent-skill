@@ -15,4 +15,3 @@ Automated test suites for the CLI package, split between end-to-end command cove
 
 - Keep public workflow coverage in `integration/` and implementation-focused checks in `unit/`.
 - Favor temporary directories and deterministic runtime setup over assumptions about the developer machine.
-- Update this file when suite structure or test responsibilities change.

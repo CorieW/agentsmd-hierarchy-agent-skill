@@ -33,6 +33,5 @@ Frontend workspace for routes, components, static assets, and test tooling.
 ## Writing Rules
 
 - Keep package-level tooling files at the root and product code under `src/`.
-- Update this file when a child directory changes purpose or a root config file is added.
 - Push feature-specific behavior into `src/` rather than package-level config files.
 ```

@@ -14,4 +14,3 @@ Published executable shims for the package, kept minimal so the shared library m
 
 - Keep bin files as thin wrappers around shared modules under `agentsmd-hierarchy/scripts/lib/`.
 - Keep executable names and targets aligned with the `bin` map in `package.json`.
-- Update this file when published entrypoints are added, removed, or repurposed.

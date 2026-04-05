@@ -19,4 +19,3 @@ Shared implementation modules for the bundled CLI, including structured logging,
 - Keep modules reusable from both CLI entrypoints and tests by accepting injected runtime state where practical.
 - Preserve stable option handling, debug log structure, and user-facing error messages because tests assert them.
 - Prefer adding shared behavior here rather than expanding the published bin wrappers.
-- Update this file when shared modules are added, removed, or materially repurposed.

@@ -19,5 +19,5 @@ Helper scripts for local repo maintenance.
 ## Writing Rules
 
 - Keep scripts deterministic and safe to run from automation.
-- Update this file when a script is added, removed, or repurposed.
+- Keep script names tied to the repo task they automate.
 ```

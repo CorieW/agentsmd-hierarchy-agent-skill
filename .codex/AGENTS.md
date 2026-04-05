@@ -17,4 +17,3 @@ Codex-specific development state for this repository, primarily used to keep a r
 
 - Treat this directory as tool-facing configuration and installed output, not the primary source for the published bundle.
 - Keep Codex-specific inventory focused on immediate children only.
-- Update this file when Codex config directories are added, removed, or repurposed.

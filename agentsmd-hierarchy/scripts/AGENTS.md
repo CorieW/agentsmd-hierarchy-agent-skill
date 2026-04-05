@@ -19,4 +19,3 @@ Bundled CLI entrypoints and prompt helpers that support the skill's scaffold, sy
 - Keep executable entrypoints thin and move reusable logic into `lib/`.
 - Preserve repo-relative path handling and `--debug` passthrough across command wrappers.
 - Keep interactive prompts centralized in `cli-prompts.mjs` instead of duplicating prompt logic in entrypoints.
-- Update this file when commands or shared script responsibilities change.

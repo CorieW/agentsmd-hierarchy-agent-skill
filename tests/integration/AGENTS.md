@@ -16,4 +16,3 @@ Integration coverage for user-visible command behavior, including spawned CLI ex
 
 - Exercise public commands and install flows through spawned processes or near-real runtimes instead of mocking the entire stack.
 - Assert stdout, stderr, exit codes, and filesystem side effects that users actually depend on.
-- Update this file when integration scenarios are added, removed, or materially repurposed.

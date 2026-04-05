@@ -18,4 +18,3 @@ Reference material that backs the skill instructions, including the canonical AG
 
 - Keep the convention document aligned with the behavior enforced by the bundled validator.
 - Keep example files small, valid Markdown, and clearly matched to the directory shape named in the filename.
-- Update this file when reference documents are added, removed, or repurposed.
