@@ -113,7 +113,7 @@ agentsmd-hierarchy check . --strict-placeholders
 
 ### `sync [path]`
 
-Refresh `AGENTS.md` files and migrate legacy `## Writing Rules` sections to `## Rules`.
+Refresh `AGENTS.md` files.
 
 ```bash
 agentsmd-hierarchy sync .

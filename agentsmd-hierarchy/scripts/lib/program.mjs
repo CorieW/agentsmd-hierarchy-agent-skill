@@ -82,9 +82,7 @@ export function createProgram(runtime = {}) {
   addValidateOptions(
     program
       .command('sync [path]')
-      .description(
-        'Refresh AGENTS.md files and migrate legacy "## Writing Rules" sections to "## Rules".',
-      ),
+      .description('Refresh AGENTS.md files.'),
   ).action(async (targetPath, options) => {
     const argv = [];
     if (targetPath) {
