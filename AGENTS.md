@@ -26,7 +26,7 @@ Repository root for the AGENTS Hierarchy CLI package, published skill bundle, an
   Rules:
   - Refresh with npm tooling instead of hand-editing it.
 
-## Writing Rules
+## Rules
 
 - Treat `agentsmd-hierarchy/` as the source of truth for the shipped skill bundle and keep root metadata aligned with it.
 - Keep repo-only helpers in `scripts/` and user-facing runtime entrypoints in `bin/`.

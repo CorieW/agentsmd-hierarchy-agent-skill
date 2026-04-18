@@ -15,7 +15,7 @@ Shared helpers used by backend test suites.
 
 - `integration.ts`: Creates reusable setup helpers for backend integration tests.
 
-## Writing Rules
+## Rules
 
 - Keep helpers generic enough to serve multiple suites.
 - Do not hide important assertions inside helper utilities.

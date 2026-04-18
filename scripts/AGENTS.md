@@ -10,7 +10,7 @@ Repository-only helper scripts for local development workflows that are not ship
 
 - `dev-install-codex-skill.mjs`: Copies the source skill bundle into `.codex/skills/agentsmd-hierarchy` so the local Codex install stays in sync during development.
 
-## Writing Rules
+## Rules
 
 - Keep repo helpers safe to run repeatedly and anchored from the repository root.
 - Prefer editing the canonical skill bundle under `agentsmd-hierarchy/`; use this directory for local development workflows around that bundle.

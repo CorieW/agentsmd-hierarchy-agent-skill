@@ -9,9 +9,11 @@ Use this format for each directory-level `AGENTS.md`:
 3. `## Directories`
 4. `## Files`
 5. Optional `## Generated Files`
-6. `## Writing Rules`
+6. Optional `## Rules`
 
 Document only the directory's immediate children. Do not list grandchildren in the current file.
+
+Repo-specific sections may appear after the standard layout when needed. Keep those custom sections after `## Rules` so the core structure stays predictable.
 
 ## Section Rules
 
@@ -34,10 +36,10 @@ Document only the directory's immediate children. Do not list grandchildren in t
 - State how the artifact should usually be refreshed.
 - Keep generated-file rule bullets short and actionable.
 
-### Writing Rules
+### Rules
 
-- Keep 2-6 concise bullets.
-- Focus on how to edit files in the directory, not on general coding advice already covered higher in the tree.
+- Add this section only when the directory needs extra local editing guidance beyond what parent `AGENTS.md` files already cover.
+- If you include it, keep the bullets concise and focused on how to edit files in the directory.
 - Avoid self-referential reminders about updating the `AGENTS.md`; use the bullets for concrete local editing guidance.
 
 ## Cascading Behavior
@@ -61,7 +63,7 @@ Update a directory `AGENTS.md` when:
 
 - A tracked file is added, removed, renamed, or materially repurposed.
 - A subdirectory is added, removed, renamed, or materially repurposed.
-- Local writing rules change.
+- Local rules change.
 - A file becomes generated or stops being generated.
 
 Update the parent `AGENTS.md` too when the identity of a child directory changes.
@@ -78,11 +80,11 @@ Update the parent `AGENTS.md` too when the identity of a child directory changes
 - Use the skill's bundled `scripts/sync-agents.mjs` helper or the repo's matching helper when it exists to refresh `## Directories`, `## Files`, and `## Generated Files` from the current repo inventory.
 - Prefer the helper over manually rebuilding inventory sections when the helper covers the task.
 - Let sync and validation helpers read repo-specific excluded inventory paths from the root `AGENTS.md` `## AGENTS Hierarchy` section when that section lists exclusions.
-- Let sync helpers preserve existing descriptions and writing rules when possible, then review any placeholder text they leave behind.
+- Let sync helpers preserve existing descriptions and rules sections when possible while normalizing legacy `## Writing Rules` headings to `## Rules`.
 
 ## Validation Guidance
 
-- Use the skill's bundled `scripts/validate-agents.mjs` helper or the repo's matching helper when it exists to check title, overview, section layout, entry formatting, writing-rule count, and AGENTS package exclusions.
+- Use the skill's bundled `scripts/validate-agents.mjs` helper or the repo's matching helper when it exists to check title, overview, section layout, entry formatting, optional rules sections, and AGENTS package exclusions.
 - Prefer the validator over ad hoc manual checking so the skill ends with deterministic structure validation.
 - Placeholder descriptions may remain when the task allows them; use stricter placeholder validation only when the repo or task requires finished descriptions.
 
@@ -92,3 +94,4 @@ Update the parent `AGENTS.md` too when the identity of a child directory changes
 - For a small helper directory, open [example-simple-test-helpers.md](example-simple-test-helpers.md).
 - For a package root with config, source, and generated files, open [example-complex-package-root.md](example-complex-package-root.md).
 - For a source directory with generated artifacts and file-specific rules, open [example-complex-source-directory.md](example-complex-source-directory.md).
+- For a directory that needs custom sections after the standard layout, open [example-custom-trailing-sections.md](example-custom-trailing-sections.md).

@@ -1,6 +1,6 @@
 ---
 name: agentsmd-hierarchy
-description: Navigate and maintain repositories that use hierarchical AGENTS.md files, where each directory AGENTS.md describes its immediate children, local writing rules, and cascading repo guidance. Use when Codex needs to understand a repo through AGENTS.md, follow AGENTS instructions before editing, or use repo CLI helpers to scaffold, sync, validate, or update AGENTS.md files after files or directories change.
+description: Navigate and maintain repositories that use hierarchical AGENTS.md files, where each directory AGENTS.md describes its immediate children, optional local rules, and cascading repo guidance. Use when Codex needs to understand a repo through AGENTS.md, follow AGENTS instructions before editing, or use repo CLI helpers to scaffold, sync, validate, or update AGENTS.md files after files or directories change.
 ---
 
 # AGENTS Hierarchy
@@ -20,7 +20,7 @@ Read `AGENTS.md` files as a layered map of the repository. Start at the repo roo
 ## Interpret the Format
 
 - Treat each `AGENTS.md` as documentation for that directory's immediate children only.
-- Read `## Writing Rules` as the local policy for edits in that directory.
+- When present, read `## Rules` as the local policy for edits in that directory.
 - Treat indented `Rules:` blocks under child bullets as the most specific guidance for that item.
 - Use `## Generated Files` to spot artifacts that should usually be regenerated instead of hand-edited.
 - Do not expect one `AGENTS.md` to fully describe grandchildren; walk deeper in the tree when needed.
@@ -43,7 +43,7 @@ Read `AGENTS.md` files as a layered map of the repository. Start at the repo roo
 ## Scaffold Carefully
 
 - Prefer the bundled AGENTS tool first when a directory needs its first `AGENTS.md`; use manual drafting only when the helper does not fit the task.
-- Use the bundled script path for the current skill package, such as `node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs --fix <repo-relative-directory>`.
+- Use the bundled script path for the current skill package, such as `node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs --sync <repo-relative-directory>`.
 - Replace placeholders with real summaries before considering the directory documented.
 - Recheck the immediate child inventory before finishing so `## Directories`, `## Files`, and `## Generated Files` stay complete.
 
@@ -52,7 +52,7 @@ Read `AGENTS.md` files as a layered map of the repository. Start at the repo roo
 Treat the bundled CLI helpers in this skill package as part of the skill:
 
 - Use [scripts/validate-agents.mjs](scripts/validate-agents.mjs) with `--check` to validate AGENTS structure, inventory correctness, and missing AGENTS.md files.
-- Use [scripts/validate-agents.mjs](scripts/validate-agents.mjs) with `--fix` to scaffold missing AGENTS.md files and refresh inventory sections while preserving compatible descriptions and rules.
+- Use [scripts/validate-agents.mjs](scripts/validate-agents.mjs) with `--sync` to scaffold missing AGENTS.md files and refresh inventory sections while preserving compatible descriptions and rules.
 - Add `--debug` to these bundled scripts when you need extra visibility into repo-root resolution, inventory discovery, scope selection, or validation counts.
 - Prefer these bundled scripts before recreating scaffold, sync, or validation logic manually.
 - Use manual `AGENTS.md` edits to refine descriptions, rules, or edge cases around the script output, not to replace deterministic script work the helpers already cover.
@@ -65,10 +65,10 @@ Treat the bundled CLI helpers in this skill package as part of the skill:
 
 1. Read the AGENTS chain for the target path.
 2. Use the bundled AGENTS tool as the skill's default deterministic workflow whenever it covers the task.
-3. Use `node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs --fix <repo-relative-path>` after structural changes so missing AGENTS.md files are scaffolded and inventory sections match the current tree.
+3. Use `node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs --sync <repo-relative-path>` after structural changes so missing AGENTS.md files are scaffolded and inventory sections match the current tree.
 4. Make any manual `AGENTS.md` edits that are still needed for descriptions, rules, or special cases the script cannot infer.
 5. Use `node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs --check <repo-relative-path-or-agents-file>` before finishing to verify the AGENTS structure, inventory, and required-file coverage deterministically.
-6. Add `--debug` to check or fix runs when you need the helper script to explain what it discovered and why it made a decision.
+6. Add `--debug` to check or sync runs when you need the helper script to explain what it discovered and why it made a decision.
 
 ## Load the Reference
 
@@ -80,3 +80,4 @@ Open one of these example files when you want a concrete pattern to imitate:
 - [references/example-simple-test-helpers.md](references/example-simple-test-helpers.md)
 - [references/example-complex-package-root.md](references/example-complex-package-root.md)
 - [references/example-complex-source-directory.md](references/example-complex-source-directory.md)
+- [references/example-custom-trailing-sections.md](references/example-custom-trailing-sections.md)

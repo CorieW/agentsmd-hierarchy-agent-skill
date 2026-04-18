@@ -9,7 +9,7 @@
 
 ## Why This Exists
 
-Large repos get messy fast. `AGENTS.md` files work best when they behave like a map: each directory explains its immediate children, local writing rules, and how guidance cascades down the tree.
+Large repos get messy fast. `AGENTS.md` files work best when they behave like a map: each directory explains its immediate children, any local rules, and how guidance cascades down the tree.
 
 That keeps any single `AGENTS.md` lighter, which reduces context load and can improve model performance. It is useful for humans too, because the same hierarchy makes the project's structure easier to understand.
 
@@ -98,7 +98,7 @@ Once installed globally, or via `npx`, the main workflow looks like this:
 
 ```bash
 agentsmd-hierarchy check .
-agentsmd-hierarchy fix .
+agentsmd-hierarchy sync .
 agentsmd-hierarchy scaffold src/components
 ```
 
@@ -111,21 +111,13 @@ agentsmd-hierarchy check packages/app
 agentsmd-hierarchy check . --strict-placeholders
 ```
 
-### `fix [path]`
-
-Refresh missing or stale `AGENTS.md` files.
-
-```bash
-agentsmd-hierarchy fix .
-agentsmd-hierarchy fix tests
-```
-
 ### `sync [path]`
 
-Compatibility alias for `fix`.
+Refresh `AGENTS.md` files and migrate legacy `## Writing Rules` sections to `## Rules`.
 
 ```bash
 agentsmd-hierarchy sync .
+agentsmd-hierarchy sync tests
 ```
 
 ### `scaffold <dir>`
