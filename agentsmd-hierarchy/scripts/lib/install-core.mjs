@@ -332,7 +332,7 @@ export function renderCursorCommandFile() {
     '',
     'Preferred commands:',
     '- `agentsmd-hierarchy check <path>` to validate AGENTS coverage.',
-    '- `agentsmd-hierarchy fix <path>` to scaffold or refresh AGENTS.md files.',
+    '- `agentsmd-hierarchy sync <path>` to scaffold or refresh AGENTS.md files.',
     '- `agentsmd-hierarchy scaffold <dir>` when a new directory needs its first AGENTS.md.',
     '- Add `--debug` on any command when trace output would help.',
     '',
@@ -348,7 +348,7 @@ function buildPluginManifest(packageMetadata) {
       capabilities: ['Interactive', 'Write'],
       category: 'Productivity',
       defaultPrompt: [
-        'Read the AGENTS chain for this repository and fix stale AGENTS.md files.',
+        'Read the AGENTS chain for this repository and sync stale AGENTS.md files.',
         'Validate the AGENTS hierarchy under a changed package with debug output.',
         'Scaffold a missing AGENTS.md for a newly added source directory.',
       ],

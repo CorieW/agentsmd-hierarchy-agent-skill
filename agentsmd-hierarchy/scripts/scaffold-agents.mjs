@@ -52,7 +52,7 @@ async function main() {
       selectedDirectory,
     });
 
-    const nextArgs = ['--fix', selectedDirectory];
+    const nextArgs = ['--sync', selectedDirectory];
     if (debug) {
       nextArgs.push('--debug');
     }

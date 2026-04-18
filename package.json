@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "agents:check": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --check",
-    "agents:fix": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --fix",
+    "agents:sync": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --sync",
     "changeset": "changeset",
     "dev:install-codex-skill": "node ./scripts/dev-install-codex-skill.mjs",
     "format": "prettier --write .",

@@ -13,6 +13,8 @@ import { CommandError, isCommandError } from './errors.mjs';
 
 const GENERATED_FILE_NAMES = new Set(['package-lock.json', 'pnpm-lock.yaml']);
 const DEFAULT_EXCLUDED_SCAN_DIRECTORIES = ['.git', 'node_modules'];
+export const RULES_SECTION_HEADING = 'Rules';
+export const LEGACY_RULES_SECTION_HEADING = 'Writing Rules';
 
 function extractMarkdownSection(content, heading) {
   const sectionStart = content.indexOf(`## ${heading}\n`);
@@ -141,19 +143,19 @@ export function parseValidateArguments(argv, repoRoot) {
   for (const argument of argv) {
     if (argument === '--check') {
       if (mode && mode !== 'check') {
-        throw new CommandError('Choose either --check or --fix, not both.');
+        throw new CommandError('Choose either --check or --sync, not both.');
       }
 
       mode = 'check';
       continue;
     }
 
-    if (argument === '--fix') {
-      if (mode && mode !== 'fix') {
-        throw new CommandError('Choose either --check or --fix, not both.');
+    if (argument === '--sync') {
+      if (mode && mode !== 'sync') {
+        throw new CommandError('Choose either --check or --sync, not both.');
       }
 
-      mode = 'fix';
+      mode = 'sync';
       continue;
     }
 
@@ -173,7 +175,7 @@ export function parseValidateArguments(argv, repoRoot) {
 
     if (scope.scopePath !== '.' || scope.scopeType !== 'directory') {
       throw new CommandError(
-        'Usage: node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs [--check|--fix] [repo-relative-path-or-agents-file] [--strict-placeholders] [--debug]',
+        'Usage: node .codex/skills/agentsmd-hierarchy/scripts/validate-agents.mjs [--check|--sync] [repo-relative-path-or-agents-file] [--strict-placeholders] [--debug]',
       );
     }
 
@@ -451,6 +453,40 @@ function getSectionRange(content, heading) {
     end: nextSectionStart === -1 ? content.length : nextSectionStart + 1,
     start: sectionStart,
   };
+}
+
+function getRulesSectionRange(content) {
+  return (
+    getSectionRange(content, RULES_SECTION_HEADING) ??
+    getSectionRange(content, LEGACY_RULES_SECTION_HEADING)
+  );
+}
+
+function extractRulesSection(content) {
+  return (
+    extractSection(content, RULES_SECTION_HEADING) ??
+    extractSection(content, LEGACY_RULES_SECTION_HEADING)
+  );
+}
+
+function getExistingRulesSectionHeading(content) {
+  if (getSectionRange(content, RULES_SECTION_HEADING)) {
+    return RULES_SECTION_HEADING;
+  }
+
+  if (getSectionRange(content, LEGACY_RULES_SECTION_HEADING)) {
+    return LEGACY_RULES_SECTION_HEADING;
+  }
+
+  return null;
+}
+
+function resolveRulesSectionHeading(content, preferredRulesSectionHeading) {
+  return (
+    preferredRulesSectionHeading ??
+    getExistingRulesSectionHeading(content) ??
+    RULES_SECTION_HEADING
+  );
 }
 
 function extractSection(content, heading) {
@@ -774,12 +810,17 @@ function renderEntrySection(expectedNames, maps, kind) {
   return blocks.join('\n');
 }
 
-function renderAgentsContent(directoryPath, inventory, existingContent) {
-  const writingRulesRange = getSectionRange(existingContent, 'Writing Rules');
-  const overview = extractOverview(
-    existingContent,
-    getSectionRange(existingContent, 'Directories'),
-  );
+function renderAgentsContent(
+  directoryPath,
+  inventory,
+  existingContent,
+  options = {},
+) {
+  const directoriesRange = getSectionRange(existingContent, 'Directories');
+  const filesRange = getSectionRange(existingContent, 'Files');
+  const generatedRange = getSectionRange(existingContent, 'Generated Files');
+  const rulesRange = getRulesSectionRange(existingContent);
+  const overview = extractOverview(existingContent, directoriesRange);
   const directoriesSection = normalizeSectionBody(
     extractSection(existingContent, 'Directories'),
   );
@@ -789,9 +830,9 @@ function renderAgentsContent(directoryPath, inventory, existingContent) {
   const generatedSection = normalizeSectionBody(
     extractSection(existingContent, 'Generated Files'),
   );
-  const writingRules = normalizeSectionBody(
-    extractSection(existingContent, 'Writing Rules'),
-  );
+  const rulesSection = extractRulesSection(existingContent);
+  const rules =
+    rulesSection === null ? null : normalizeSectionBody(rulesSection);
 
   const directoryBlocks = parseEntryBlocks(directoriesSection);
   const fileBlocks = parseEntryBlocks(filesSection);
@@ -819,16 +860,20 @@ function renderAgentsContent(directoryPath, inventory, existingContent) {
           'generated-file',
         )
       : '';
-  const renderedWritingRules =
-    writingRules ||
-    '- [TODO: Add the main writing rule for this directory.]\n- [TODO: Note when this AGENTS.md must be updated.]';
   const renderedOverview =
     overview ||
     '[TODO: Add a brief overview of what this directory contains and how it fits into the repo.]';
+  const lastManagedSectionRange =
+    rulesRange ?? generatedRange ?? filesRange ?? directoriesRange;
   const trailingSections =
-    writingRulesRange && writingRulesRange.end < existingContent.length
-      ? existingContent.slice(writingRulesRange.end).trim()
+    lastManagedSectionRange &&
+    lastManagedSectionRange.end < existingContent.length
+      ? existingContent.slice(lastManagedSectionRange.end).trim()
       : '';
+  const renderedRulesHeading = resolveRulesSectionHeading(
+    existingContent,
+    options.preferredRulesSectionHeading,
+  );
 
   const coreContent = [
     `# ${directoryPath}`,
@@ -839,8 +884,8 @@ function renderAgentsContent(directoryPath, inventory, existingContent) {
     renderedFiles,
     generatedFiles.length > 0 ? '## Generated Files' : null,
     generatedFiles.length > 0 ? renderedGeneratedFiles : null,
-    '## Writing Rules',
-    renderedWritingRules,
+    rules ? `## ${renderedRulesHeading}` : null,
+    rules,
   ]
     .filter(Boolean)
     .join('\n\n');
@@ -848,7 +893,13 @@ function renderAgentsContent(directoryPath, inventory, existingContent) {
   return `${coreContent}${trailingSections ? `\n\n${trailingSections}` : ''}\n`;
 }
 
-function syncAgentsFile(repoRoot, directoryPath, inventory, mode) {
+function syncAgentsFile(
+  repoRoot,
+  directoryPath,
+  inventory,
+  mode,
+  options = {},
+) {
   const agentsPath =
     directoryPath === '.'
       ? path.join(repoRoot, 'AGENTS.md')
@@ -860,6 +911,7 @@ function syncAgentsFile(repoRoot, directoryPath, inventory, mode) {
     directoryPath,
     inventory,
     existingContent,
+    options,
   );
   const hadExistingFile = existsSync(agentsPath);
 
@@ -871,7 +923,7 @@ function syncAgentsFile(repoRoot, directoryPath, inventory, mode) {
     };
   }
 
-  if (mode === 'fix') {
+  if (mode === 'sync') {
     mkdirSync(path.dirname(agentsPath), { recursive: true });
     writeFileSync(agentsPath, nextContent, 'utf8');
   }
@@ -894,7 +946,12 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
   const directoriesRange = getSectionRange(content, 'Directories');
   const filesRange = getSectionRange(content, 'Files');
   const generatedRange = getSectionRange(content, 'Generated Files');
-  const writingRulesRange = getSectionRange(content, 'Writing Rules');
+  const rulesRange = getRulesSectionRange(content);
+  const canonicalRulesRange = getSectionRange(content, RULES_SECTION_HEADING);
+  const legacyRulesRange = getSectionRange(
+    content,
+    LEGACY_RULES_SECTION_HEADING,
+  );
   const directoriesBody = extractSectionBody(content, 'Directories');
   const filesBody = extractSectionBody(content, 'Files');
   const generatedBody = extractSectionBody(content, 'Generated Files');
@@ -911,8 +968,10 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
     issues.push('missing "## Files" section');
   }
 
-  if (!writingRulesRange) {
-    issues.push('missing "## Writing Rules" section');
+  if (canonicalRulesRange && legacyRulesRange) {
+    issues.push(
+      `use either "## ${RULES_SECTION_HEADING}" or "## ${LEGACY_RULES_SECTION_HEADING}", not both`,
+    );
   }
 
   if (
@@ -927,21 +986,19 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
     issues.push('"## Generated Files" must appear after "## Files"');
   }
 
-  if (
-    generatedRange &&
-    writingRulesRange &&
-    generatedRange.start > writingRulesRange.start
-  ) {
-    issues.push('"## Generated Files" must appear before "## Writing Rules"');
+  if (generatedRange && rulesRange && generatedRange.start > rulesRange.start) {
+    issues.push(
+      `"## Generated Files" must appear before "## ${RULES_SECTION_HEADING}"`,
+    );
   }
 
   if (
     !generatedRange &&
     filesRange &&
-    writingRulesRange &&
-    filesRange.start > writingRulesRange.start
+    rulesRange &&
+    filesRange.start > rulesRange.start
   ) {
-    issues.push('"## Writing Rules" must appear after "## Files"');
+    issues.push(`"## ${RULES_SECTION_HEADING}" must appear after "## Files"`);
   }
 
   const overview = extractOverview(content, directoriesRange);
@@ -984,14 +1041,6 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
               ],
       }),
     );
-  }
-
-  const writingRulesBody = extractSectionBody(content, 'Writing Rules');
-  const writingRuleMatches = writingRulesBody?.match(/^- /gm) ?? [];
-  if (writingRulesBody !== null) {
-    if (writingRuleMatches.length < 2 || writingRuleMatches.length > 6) {
-      issues.push('"## Writing Rules" should contain 2-6 top-level bullets');
-    }
   }
 
   const placeholderLines = collectPlaceholderLines(content);
@@ -1040,6 +1089,8 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
     logger.debug('scan_exclusions_resolved', { excludedScanDirectories });
     logger.debug('command_options_resolved', {
       mode,
+      preferredRulesSectionHeading:
+        runtime.preferredRulesSectionHeading ?? null,
       scopePath: scope.scopePath,
       scopeType: scope.scopeType,
       strictPlaceholders,
@@ -1104,7 +1155,10 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
         fileCount: inventory.files.length,
         targetAgentsPath,
       });
-      const result = syncAgentsFile(repoRoot, directoryPath, inventory, mode);
+      const result = syncAgentsFile(repoRoot, directoryPath, inventory, mode, {
+        preferredRulesSectionHeading:
+          runtime.preferredRulesSectionHeading ?? null,
+      });
 
       if (!result.changed) {
         logger.success(
@@ -1186,7 +1240,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
       }
     }
 
-    if (mode === 'fix') {
+    if (mode === 'sync') {
       if (changedPaths.length === 0) {
         logger.success('AGENTS.md files were already in sync.');
       } else {
@@ -1203,7 +1257,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
         stderr.write(`- ${logger.style(changedPath, 'path')}\n`);
       }
       logger.error(
-        'Run the bundled AGENTS tool with --fix to refresh the hierarchy.',
+        'Run the bundled AGENTS tool with --sync to refresh the hierarchy.',
       );
     } else {
       logger.success('AGENTS.md files are in sync.');

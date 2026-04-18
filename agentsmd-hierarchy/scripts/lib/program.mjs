@@ -2,6 +2,7 @@ import { Command, CommanderError, Option } from 'commander';
 import { createLogger } from './cli-logger.mjs';
 import { isCommandError } from './errors.mjs';
 import { runInstallCommand } from './install-core.mjs';
+import { runSyncAgentsCommand } from '../sync-agents.mjs';
 import { runValidateAgentsCommand } from './validate-agents-core.mjs';
 
 function addSharedDebugOption(command) {
@@ -80,10 +81,12 @@ export function createProgram(runtime = {}) {
 
   addValidateOptions(
     program
-      .command('fix [path]')
-      .description('Refresh missing or stale AGENTS.md files.'),
+      .command('sync [path]')
+      .description(
+        'Refresh AGENTS.md files and migrate legacy "## Writing Rules" sections to "## Rules".',
+      ),
   ).action(async (targetPath, options) => {
-    const argv = ['--fix'];
+    const argv = [];
     if (targetPath) {
       argv.push(targetPath);
     }
@@ -93,23 +96,7 @@ export function createProgram(runtime = {}) {
     if (options.debug) {
       argv.push('--debug');
     }
-    const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
-    if (exitCode !== 0) {
-      throw new CommanderError(exitCode, 'agentsmd-hierarchy.fix.failed', '');
-    }
-  });
-
-  addSharedDebugOption(
-    program.command('sync [path]').description('Compatibility alias for fix.'),
-  ).action(async (targetPath, options) => {
-    const argv = ['--fix'];
-    if (targetPath) {
-      argv.push(targetPath);
-    }
-    if (options.debug) {
-      argv.push('--debug');
-    }
-    const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
+    const exitCode = await runSyncAgentsCommand(argv, sharedRuntime);
     if (exitCode !== 0) {
       throw new CommanderError(exitCode, 'agentsmd-hierarchy.sync.failed', '');
     }
@@ -122,7 +109,7 @@ export function createProgram(runtime = {}) {
         'Scaffold AGENTS.md files for a required repo-relative directory.',
       ),
   ).action(async (directory, options) => {
-    const argv = ['--fix', directory];
+    const argv = ['--sync', directory];
     if (options.debug) {
       argv.push('--debug');
     }

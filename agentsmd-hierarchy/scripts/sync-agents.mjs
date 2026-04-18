@@ -1,11 +1,31 @@
 #!/usr/bin/env node
 
-import { runValidateAgentsCommand } from './lib/validate-agents-core.mjs';
+import { pathToFileURL } from 'node:url';
+import {
+  RULES_SECTION_HEADING,
+  runValidateAgentsCommand,
+} from './lib/validate-agents-core.mjs';
 
-const originalArgs = process.argv.slice(2);
-const normalizedArgs = originalArgs.includes('--check')
-  ? ['--check', ...originalArgs.filter((argument) => argument !== '--check')]
-  : ['--fix', ...originalArgs];
+export async function runSyncAgentsCommand(rawArgs = [], runtime = {}) {
+  const normalizedArgs = rawArgs.includes('--check')
+    ? ['--check', ...rawArgs.filter((argument) => argument !== '--check')]
+    : ['--sync', ...rawArgs];
 
-const exitCode = await runValidateAgentsCommand(normalizedArgs);
-process.exit(exitCode);
+  return runValidateAgentsCommand(normalizedArgs, {
+    ...runtime,
+    preferredRulesSectionHeading:
+      normalizedArgs[0] === '--sync' ? RULES_SECTION_HEADING : null,
+  });
+}
+
+async function main() {
+  const exitCode = await runSyncAgentsCommand(process.argv.slice(2));
+  process.exit(exitCode);
+}
+
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  await main();
+}
