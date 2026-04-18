@@ -190,17 +190,13 @@ export function parseValidateArguments(argv, repoRoot) {
   };
 }
 
-function collectFilesFromGit(repoRoot) {
+function runGitLsFiles(repoRoot, args) {
   try {
-    const output = execFileSync(
-      'git',
-      ['ls-files', '--cached', '--others', '--exclude-standard'],
-      {
-        cwd: repoRoot,
-        encoding: 'utf8',
-        stdio: ['ignore', 'pipe', 'pipe'],
-      },
-    );
+    const output = execFileSync('git', ['ls-files', ...args], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
 
     return output
       .split('\n')
@@ -210,6 +206,25 @@ function collectFilesFromGit(repoRoot) {
   } catch {
     return null;
   }
+}
+
+function collectFilesFromGit(repoRoot) {
+  const trackedAndUntrackedPaths = runGitLsFiles(repoRoot, [
+    '--cached',
+    '--others',
+    '--exclude-standard',
+  ]);
+  if (!trackedAndUntrackedPaths) {
+    return null;
+  }
+
+  const deletedPaths = new Set(
+    runGitLsFiles(repoRoot, ['--deleted', '--exclude-standard']) ?? [],
+  );
+
+  return trackedAndUntrackedPaths.filter(
+    (filePath) => !deletedPaths.has(filePath),
+  );
 }
 
 function collectFilesFromFilesystem(repoRoot, excludedScanDirectories) {

@@ -18,7 +18,6 @@ describe('createProgram', () => {
     expect(program.commands.map((command) => command.name())).toEqual([
       'check',
       'sync',
-      'scaffold',
       'install',
     ]);
   });

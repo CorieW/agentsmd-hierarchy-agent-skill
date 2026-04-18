@@ -24,12 +24,6 @@ const syncScriptPath = path.join(
   'scripts',
   'sync-agents.mjs',
 );
-const scaffoldScriptPath = path.join(
-  repositoryRoot,
-  'agentsmd-hierarchy',
-  'scripts',
-  'scaffold-agents.mjs',
-);
 const referenceExamples = [
   {
     name: 'simple flat directory',
@@ -191,8 +185,34 @@ function runNode(arguments_, options = {}) {
   });
 }
 
+function runCommand(command, arguments_, options = {}) {
+  return spawnSync(command, arguments_, {
+    cwd: options.cwd ?? repositoryRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      ...options.env,
+    },
+  });
+}
+
 function combinedOutput(result) {
   return `${result.stdout}${result.stderr}`;
+}
+
+function initializeGitRepository(cwd) {
+  expect(runCommand('git', ['init'], { cwd }).status).toBe(0);
+  expect(
+    runCommand('git', ['config', 'user.name', 'Codex Test'], { cwd }).status,
+  ).toBe(0);
+  expect(
+    runCommand('git', ['config', 'user.email', 'codex@example.com'], { cwd })
+      .status,
+  ).toBe(0);
+  expect(runCommand('git', ['add', '.'], { cwd }).status).toBe(0);
+  expect(
+    runCommand('git', ['commit', '-m', 'Initial commit'], { cwd }).status,
+  ).toBe(0);
 }
 
 afterEach(async () => {
@@ -273,7 +293,7 @@ describe('CLI end-to-end workflows', () => {
     expect(strictCheckResult.stderr).toContain('AGENTS.md validation failed:');
   });
 
-  it('sync refreshes AGENTS files and scaffold requires an explicit directory in non-interactive mode', async () => {
+  it('sync refreshes AGENTS files for nested scopes', async () => {
     const syncRepo = await createFixtureRepo({
       'README.md': 'hello\n',
       'src/features/payments/handler.js':
@@ -290,34 +310,21 @@ describe('CLI end-to-end workflows', () => {
       fs.pathExists(path.join(syncRepo, 'src', 'features', 'AGENTS.md')),
     ).resolves.toBe(true);
 
-    const scaffoldRepo = await createFixtureRepo({
+    const nestedScopeRepo = await createFixtureRepo({
       'README.md': 'hello\n',
-      'src/features/payments/handler.js':
-        'export default function handler() {}\n',
+      'docs/reference/api.md': '# API\n',
     });
 
-    const scaffoldResult = runNode(
-      [cliPath, 'scaffold', 'src/features/payments'],
-      {
-        cwd: scaffoldRepo,
-      },
-    );
+    const nestedScopeResult = runNode([cliPath, 'sync', 'docs/reference'], {
+      cwd: nestedScopeRepo,
+    });
 
-    expect(scaffoldResult.status).toBe(0);
+    expect(nestedScopeResult.status).toBe(0);
     await expect(
       fs.pathExists(
-        path.join(scaffoldRepo, 'src', 'features', 'payments', 'AGENTS.md'),
+        path.join(nestedScopeRepo, 'docs', 'reference', 'AGENTS.md'),
       ),
     ).resolves.toBe(true);
-
-    const missingDirectoryResult = runNode([cliPath, 'scaffold'], {
-      cwd: scaffoldRepo,
-    });
-
-    expect(missingDirectoryResult.status).toBe(1);
-    expect(missingDirectoryResult.stderr).toContain(
-      'missing required argument',
-    );
   });
 
   it('check accepts AGENTS.md files that omit the Rules section', async () => {
@@ -375,7 +382,37 @@ describe('Bundled helper script end-to-end workflows', () => {
     expect(result.stderr).toContain('- AGENTS.md');
   });
 
-  it('sync-agents and scaffold-agents create the expected AGENTS files', async () => {
+  it('sync-agents drops tracked files deleted from the working tree when git inventory is available', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': `# .
+
+Repository root for a fixture repo with a tracked README file.
+
+## Directories
+
+- None.
+
+## Files
+
+- \`README.md\`: Top-level fixture readme.
+`,
+      'README.md': 'hello\n',
+    });
+
+    initializeGitRepository(repoRoot);
+    await fs.remove(path.join(repoRoot, 'README.md'));
+
+    const result = runNode([syncScriptPath, '.'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    await expect(
+      readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8'),
+    ).resolves.toContain('## Files\n\n- None.\n');
+  });
+
+  it('sync-agents creates the expected AGENTS files for targeted directories', async () => {
     const syncRepo = await createFixtureRepo({
       'README.md': 'hello\n',
       'src/lib/index.js': 'export const ready = true;\n',
@@ -390,18 +427,20 @@ describe('Bundled helper script end-to-end workflows', () => {
       fs.pathExists(path.join(syncRepo, 'src', 'lib', 'AGENTS.md')),
     ).resolves.toBe(true);
 
-    const scaffoldRepo = await createFixtureRepo({
+    const nestedScopeRepo = await createFixtureRepo({
       'README.md': 'hello\n',
       'docs/reference/api.md': '# API\n',
     });
 
-    const scaffoldResult = runNode([scaffoldScriptPath, 'docs/reference'], {
-      cwd: scaffoldRepo,
+    const nestedScopeResult = runNode([syncScriptPath, 'docs/reference'], {
+      cwd: nestedScopeRepo,
     });
 
-    expect(scaffoldResult.status).toBe(0);
+    expect(nestedScopeResult.status).toBe(0);
     await expect(
-      fs.pathExists(path.join(scaffoldRepo, 'docs', 'reference', 'AGENTS.md')),
+      fs.pathExists(
+        path.join(nestedScopeRepo, 'docs', 'reference', 'AGENTS.md'),
+      ),
     ).resolves.toBe(true);
   });
 
@@ -486,20 +525,17 @@ Repository root for a fixture repo that keeps custom trailing metadata.
   );
 
   it.each(referenceExamples)(
-    'scaffold-agents creates a valid AGENTS chain for the $name example shape',
+    'sync-agents creates a valid AGENTS chain for the $name example shape',
     async (example) => {
       const repoRoot = await createReferenceExampleRepo(example, {
         includeAgents: false,
       });
 
-      const scaffoldResult = runNode(
-        [scaffoldScriptPath, example.targetDirectory],
-        {
-          cwd: repoRoot,
-        },
-      );
+      const syncResult = runNode([syncScriptPath, example.targetDirectory], {
+        cwd: repoRoot,
+      });
 
-      expect(scaffoldResult.status).toBe(0);
+      expect(syncResult.status).toBe(0);
       await expect(
         fs.pathExists(
           path.join(repoRoot, example.targetDirectory, 'AGENTS.md'),

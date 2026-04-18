@@ -1,6 +1,6 @@
 ---
 name: agentsmd-hierarchy
-description: Navigate and maintain repositories that use hierarchical AGENTS.md files, where each directory AGENTS.md describes its immediate children, optional local rules, and cascading repo guidance. Use when Codex needs to understand a repo through AGENTS.md, follow AGENTS instructions before editing, or use repo CLI helpers to scaffold, sync, validate, or update AGENTS.md files after files or directories change.
+description: Navigate and maintain repositories that use hierarchical AGENTS.md files, where each directory AGENTS.md describes its immediate children, optional local rules, and cascading repo guidance. Use when Codex needs to understand a repo through AGENTS.md, follow AGENTS instructions before editing, or use repo CLI helpers to sync, validate, or update AGENTS.md files after files or directories change.
 ---
 
 # AGENTS Hierarchy
@@ -52,9 +52,9 @@ Read `AGENTS.md` files as a layered map of the repository. Start at the repo roo
 Treat the bundled CLI helpers in this skill package as part of the skill:
 
 - Use [scripts/validate-agents.mjs](scripts/validate-agents.mjs) with `--check` to validate AGENTS structure, inventory correctness, and missing AGENTS.md files.
-- Use [scripts/validate-agents.mjs](scripts/validate-agents.mjs) with `--sync` to scaffold missing AGENTS.md files and refresh inventory sections while preserving compatible descriptions and rules.
+- Use [scripts/validate-agents.mjs](scripts/validate-agents.mjs) with `--sync` to create missing AGENTS.md files and refresh inventory sections while preserving compatible descriptions and rules.
 - Add `--debug` to these bundled scripts when you need extra visibility into repo-root resolution, inventory discovery, scope selection, or validation counts.
-- Prefer these bundled scripts before recreating scaffold, sync, or validation logic manually.
+- Prefer these bundled scripts before recreating AGENTS sync or validation logic manually.
 - Use manual `AGENTS.md` edits to refine descriptions, rules, or edge cases around the script output, not to replace deterministic script work the helpers already cover.
 - Let the bundled scripts read repo-specific inventory exclusions from the root `AGENTS.md` `## AGENTS Hierarchy` section when that section lists excluded paths.
 - Run the bundled scripts from the repository root so they can treat the current working directory as the repo root by default.

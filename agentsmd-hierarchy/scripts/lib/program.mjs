@@ -53,7 +53,7 @@ export function createProgram(runtime = {}) {
   program
     .name('agentsmd-hierarchy')
     .description(
-      'Validate, scaffold, and install the AGENTS Hierarchy skill bundle.',
+      'Validate, sync, and install the AGENTS Hierarchy skill bundle.',
     )
     .showHelpAfterError()
     .exitOverride();
@@ -82,7 +82,7 @@ export function createProgram(runtime = {}) {
   addValidateOptions(
     program
       .command('sync [path]')
-      .description('Refresh AGENTS.md files.'),
+      .description('Create or refresh AGENTS.md files.'),
   ).action(async (targetPath, options) => {
     const argv = [];
     if (targetPath) {
@@ -97,27 +97,6 @@ export function createProgram(runtime = {}) {
     const exitCode = await runSyncAgentsCommand(argv, sharedRuntime);
     if (exitCode !== 0) {
       throw new CommanderError(exitCode, 'agentsmd-hierarchy.sync.failed', '');
-    }
-  });
-
-  addSharedDebugOption(
-    program
-      .command('scaffold <dir>')
-      .description(
-        'Scaffold AGENTS.md files for a required repo-relative directory.',
-      ),
-  ).action(async (directory, options) => {
-    const argv = ['--sync', directory];
-    if (options.debug) {
-      argv.push('--debug');
-    }
-    const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
-    if (exitCode !== 0) {
-      throw new CommanderError(
-        exitCode,
-        'agentsmd-hierarchy.scaffold.failed',
-        '',
-      );
     }
   });
 

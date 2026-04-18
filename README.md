@@ -99,7 +99,7 @@ Once installed globally, or via `npx`, the main workflow looks like this:
 ```bash
 agentsmd-hierarchy check .
 agentsmd-hierarchy sync .
-agentsmd-hierarchy scaffold src/components
+agentsmd-hierarchy sync src/components
 ```
 
 ### `check [path]`
@@ -113,19 +113,11 @@ agentsmd-hierarchy check . --strict-placeholders
 
 ### `sync [path]`
 
-Refresh `AGENTS.md` files.
+Create or refresh `AGENTS.md` files.
 
 ```bash
 agentsmd-hierarchy sync .
-agentsmd-hierarchy sync tests
-```
-
-### `scaffold <dir>`
-
-Create the first `AGENTS.md` for a repo-relative directory.
-
-```bash
-agentsmd-hierarchy scaffold src/features/payments
+agentsmd-hierarchy sync src/features/payments
 ```
 
 ### `install`
@@ -156,7 +148,7 @@ The shipped skill teaches agents to:
 
 - Read the `AGENTS.md` chain from repo root to target path
 - Treat each file as documentation for immediate children only
-- Use bundled helpers to validate and scaffold docs deterministically
+- Use bundled helpers to validate and sync docs deterministically
 - Keep parent and child `AGENTS.md` files aligned as the tree evolves
 
 ## Local Development

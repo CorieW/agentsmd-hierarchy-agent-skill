@@ -68,11 +68,11 @@ Update a directory `AGENTS.md` when:
 
 Update the parent `AGENTS.md` too when the identity of a child directory changes.
 
-## Scaffolding Guidance
+## Creation Guidance
 
-- Use the skill's bundled `scripts/scaffold-agents.mjs` helper or the repo's matching helper when it exists.
+- Use the skill's bundled `scripts/sync-agents.mjs` helper or `scripts/validate-agents.mjs --sync`, or the repo's matching helper when it exists, to create a first draft.
 - Prefer the helper over hand-writing a first draft when the helper covers the task.
-- Treat scaffold output as a draft, not finished documentation.
+- Treat generated output as a draft, not finished documentation.
 - Replace placeholder text before finishing the task.
 
 ## Sync Guidance
