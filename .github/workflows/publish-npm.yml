@@ -1,4 +1,4 @@
-# Create release pull requests and publish the package to npm with Changesets.
+# Create release pull requests and publish the package to npm with Changesets and OIDC trusted publishing.
 
 name: Release
 
@@ -26,7 +26,8 @@ jobs:
         uses: actions/setup-node@v5
         with:
           cache: npm
-          node-version: '22'
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
@@ -54,5 +55,3 @@ jobs:
           publish: npm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
