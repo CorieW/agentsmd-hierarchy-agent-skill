@@ -12,7 +12,8 @@ import { createLogger } from './cli-logger.mjs';
 import { CommandError, isCommandError } from './errors.mjs';
 
 const GENERATED_FILE_NAMES = new Set(['package-lock.json', 'pnpm-lock.yaml']);
-const DEFAULT_EXCLUDED_SCAN_DIRECTORIES = ['.git', 'node_modules'];
+const DEFAULT_EXCLUDED_SCAN_PATHS = ['.git', 'node_modules'];
+const IGNORE_SECTION_HEADING = 'Ignore Files and Directories';
 export const RULES_SECTION_HEADING = 'Rules';
 export const LEGACY_RULES_SECTION_HEADING = 'Writing Rules';
 
@@ -37,35 +38,72 @@ function getRepoRoot(env, cwd) {
   return cwd;
 }
 
-function getExcludedScanDirectories(repoRoot) {
-  const excludedDirectories = new Set(DEFAULT_EXCLUDED_SCAN_DIRECTORIES);
-  const rootAgentsPath = path.join(repoRoot, 'AGENTS.md');
+function normalizeExcludedScanPath(rawPath) {
+  const normalizedPath = path.posix
+    .normalize(rawPath.trim().replaceAll('\\', '/'))
+    .replace(/\/+$/, '');
 
-  if (!existsSync(rootAgentsPath)) {
-    return [...excludedDirectories];
+  if (
+    !normalizedPath ||
+    normalizedPath === '.' ||
+    normalizedPath === '..' ||
+    normalizedPath.startsWith('../') ||
+    path.posix.isAbsolute(normalizedPath)
+  ) {
+    return null;
   }
 
-  const agentsHierarchySection = extractMarkdownSection(
-    readFileSync(rootAgentsPath, 'utf8'),
-    'AGENTS Hierarchy',
-  );
+  return normalizedPath;
+}
 
-  if (!agentsHierarchySection) {
-    return [...excludedDirectories];
+function addBacktickedPathsFromSection(
+  excludedPaths,
+  sectionContent,
+  { requireExcludeVerb = false } = {},
+) {
+  if (!sectionContent) {
+    return;
   }
 
-  for (const line of agentsHierarchySection.split('\n')) {
-    if (!line.includes('Exclude')) {
+  for (const line of sectionContent.split('\n')) {
+    if (requireExcludeVerb && !/\bexclude\b/i.test(line)) {
       continue;
     }
 
     const matches = line.matchAll(/`([^`]+)`/g);
     for (const match of matches) {
-      excludedDirectories.add(match[1]);
+      const normalizedPath = normalizeExcludedScanPath(match[1]);
+      if (normalizedPath) {
+        excludedPaths.add(normalizedPath);
+      }
     }
   }
+}
 
-  return [...excludedDirectories];
+function getExcludedScanPaths(repoRoot) {
+  const excludedPaths = new Set(DEFAULT_EXCLUDED_SCAN_PATHS);
+  const rootAgentsPath = path.join(repoRoot, 'AGENTS.md');
+
+  if (!existsSync(rootAgentsPath)) {
+    return [...excludedPaths];
+  }
+
+  const rootAgentsContent = readFileSync(rootAgentsPath, 'utf8');
+  const ignoreSection = extractMarkdownSection(
+    rootAgentsContent,
+    IGNORE_SECTION_HEADING,
+  );
+  const agentsHierarchySection = extractMarkdownSection(
+    rootAgentsContent,
+    'AGENTS Hierarchy',
+  );
+
+  addBacktickedPathsFromSection(excludedPaths, ignoreSection);
+  addBacktickedPathsFromSection(excludedPaths, agentsHierarchySection, {
+    requireExcludeVerb: true,
+  });
+
+  return [...excludedPaths];
 }
 
 function isExcludedAgentsDirectory(directoryPath) {
@@ -75,8 +113,8 @@ function isExcludedAgentsDirectory(directoryPath) {
   );
 }
 
-function isExcludedScanPath(relativePath, excludedScanDirectories) {
-  return excludedScanDirectories.some(
+function isExcludedScanPath(relativePath, excludedScanPaths) {
+  return excludedScanPaths.some(
     (excludedPath) =>
       relativePath === excludedPath ||
       relativePath.startsWith(`${excludedPath}/`),
@@ -227,7 +265,7 @@ function collectFilesFromGit(repoRoot) {
   );
 }
 
-function collectFilesFromFilesystem(repoRoot, excludedScanDirectories) {
+function collectFilesFromFilesystem(repoRoot, excludedScanPaths) {
   const filePaths = [];
 
   function visitDirectory(directoryPath) {
@@ -240,11 +278,11 @@ function collectFilesFromFilesystem(repoRoot, excludedScanDirectories) {
       const relativePath =
         directoryPath === '.' ? entry.name : `${directoryPath}/${entry.name}`;
 
-      if (entry.isDirectory()) {
-        if (isExcludedScanPath(relativePath, excludedScanDirectories)) {
-          continue;
-        }
+      if (isExcludedScanPath(relativePath, excludedScanPaths)) {
+        continue;
+      }
 
+      if (entry.isDirectory()) {
         visitDirectory(relativePath);
         continue;
       }
@@ -258,7 +296,7 @@ function collectFilesFromFilesystem(repoRoot, excludedScanDirectories) {
   return filePaths.sort();
 }
 
-function collectRepositoryFiles(repoRoot, excludedScanDirectories) {
+function collectRepositoryFiles(repoRoot, excludedScanPaths) {
   const gitFiles = collectFilesFromGit(repoRoot);
   if (gitFiles) {
     return {
@@ -268,12 +306,12 @@ function collectRepositoryFiles(repoRoot, excludedScanDirectories) {
   }
 
   return {
-    filePaths: collectFilesFromFilesystem(repoRoot, excludedScanDirectories),
+    filePaths: collectFilesFromFilesystem(repoRoot, excludedScanPaths),
     source: 'filesystem',
   };
 }
 
-function getVisibleAgentsDirectories(allPaths) {
+function getVisibleAgentsDirectories(allPaths, excludedScanPaths) {
   const directories = new Set();
 
   for (const filePath of allPaths) {
@@ -284,7 +322,10 @@ function getVisibleAgentsDirectories(allPaths) {
     const directoryPath = path.posix.dirname(filePath);
     const normalizedDirectory = directoryPath === '' ? '.' : directoryPath;
 
-    if (isExcludedAgentsDirectory(normalizedDirectory)) {
+    if (
+      isExcludedAgentsDirectory(normalizedDirectory) ||
+      isExcludedScanPath(normalizedDirectory, excludedScanPaths)
+    ) {
       continue;
     }
 
@@ -294,12 +335,10 @@ function getVisibleAgentsDirectories(allPaths) {
   return [...directories].sort();
 }
 
-function getInventoryFiles(allPaths, excludedScanDirectories) {
+function getInventoryFiles(allPaths, excludedScanPaths) {
   return allPaths
     .filter((filePath) => path.posix.basename(filePath) !== 'AGENTS.md')
-    .filter(
-      (filePath) => !isExcludedScanPath(filePath, excludedScanDirectories),
-    )
+    .filter((filePath) => !isExcludedScanPath(filePath, excludedScanPaths))
     .sort();
 }
 
@@ -388,7 +427,7 @@ function getDirectoriesToSync(
 function getImmediateChildren(
   directoryPath,
   inventoryFiles,
-  excludedScanDirectories,
+  excludedScanPaths,
   explicitDirectories,
 ) {
   const directoryPrefix = directoryPath === '.' ? '' : `${directoryPath}/`;
@@ -420,7 +459,7 @@ function getImmediateChildren(
         ? childDirectory
         : `${directoryPath}/${childDirectory}`;
 
-    if (isExcludedScanPath(childDirectoryPath, excludedScanDirectories)) {
+    if (isExcludedScanPath(childDirectoryPath, excludedScanPaths)) {
       continue;
     }
 
@@ -441,7 +480,7 @@ function getImmediateChildren(
     const childName = path.posix.basename(explicitDirectory);
     if (
       childName &&
-      !isExcludedScanPath(explicitDirectory, excludedScanDirectories)
+      !isExcludedScanPath(explicitDirectory, excludedScanPaths)
     ) {
       childDirectories.add(childName);
     }
@@ -474,6 +513,17 @@ function getRulesSectionRange(content) {
   return (
     getSectionRange(content, RULES_SECTION_HEADING) ??
     getSectionRange(content, LEGACY_RULES_SECTION_HEADING)
+  );
+}
+
+function getLastSectionRange(sectionRanges) {
+  const presentRanges = sectionRanges.filter(Boolean);
+  if (presentRanges.length === 0) {
+    return null;
+  }
+
+  return presentRanges.reduce((latestRange, sectionRange) =>
+    sectionRange.end > latestRange.end ? sectionRange : latestRange,
   );
 }
 
@@ -834,6 +884,7 @@ function renderAgentsContent(
   const directoriesRange = getSectionRange(existingContent, 'Directories');
   const filesRange = getSectionRange(existingContent, 'Files');
   const generatedRange = getSectionRange(existingContent, 'Generated Files');
+  const ignoreRange = getSectionRange(existingContent, IGNORE_SECTION_HEADING);
   const rulesRange = getRulesSectionRange(existingContent);
   const overview = extractOverview(existingContent, directoriesRange);
   const directoriesSection = normalizeSectionBody(
@@ -845,6 +896,9 @@ function renderAgentsContent(
   const generatedSection = normalizeSectionBody(
     extractSection(existingContent, 'Generated Files'),
   );
+  const ignoreSection = extractSection(existingContent, IGNORE_SECTION_HEADING);
+  const ignoredPaths =
+    ignoreSection === null ? null : normalizeSectionBody(ignoreSection);
   const rulesSection = extractRulesSection(existingContent);
   const rules =
     rulesSection === null ? null : normalizeSectionBody(rulesSection);
@@ -878,8 +932,13 @@ function renderAgentsContent(
   const renderedOverview =
     overview ||
     '[TODO: Add a brief overview of what this directory contains and how it fits into the repo.]';
-  const lastManagedSectionRange =
-    rulesRange ?? generatedRange ?? filesRange ?? directoriesRange;
+  const lastManagedSectionRange = getLastSectionRange([
+    directoriesRange,
+    filesRange,
+    generatedRange,
+    ignoreRange,
+    rulesRange,
+  ]);
   const trailingSections =
     lastManagedSectionRange &&
     lastManagedSectionRange.end < existingContent.length
@@ -899,6 +958,8 @@ function renderAgentsContent(
     renderedFiles,
     generatedFiles.length > 0 ? '## Generated Files' : null,
     generatedFiles.length > 0 ? renderedGeneratedFiles : null,
+    ignoredPaths ? `## ${IGNORE_SECTION_HEADING}` : null,
+    ignoredPaths,
     rules ? `## ${renderedRulesHeading}` : null,
     rules,
   ]
@@ -961,6 +1022,7 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
   const directoriesRange = getSectionRange(content, 'Directories');
   const filesRange = getSectionRange(content, 'Files');
   const generatedRange = getSectionRange(content, 'Generated Files');
+  const ignoreRange = getSectionRange(content, IGNORE_SECTION_HEADING);
   const rulesRange = getRulesSectionRange(content);
   const canonicalRulesRange = getSectionRange(content, RULES_SECTION_HEADING);
   const legacyRulesRange = getSectionRange(
@@ -970,6 +1032,7 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
   const directoriesBody = extractSectionBody(content, 'Directories');
   const filesBody = extractSectionBody(content, 'Files');
   const generatedBody = extractSectionBody(content, 'Generated Files');
+  const ignoreBody = extractSectionBody(content, IGNORE_SECTION_HEADING);
 
   if (title !== directoryPath) {
     issues.push(`title should be "# ${directoryPath}"`);
@@ -1001,6 +1064,10 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
     issues.push('"## Generated Files" must appear after "## Files"');
   }
 
+  if (filesRange && ignoreRange && filesRange.start > ignoreRange.start) {
+    issues.push(`"## ${IGNORE_SECTION_HEADING}" must appear after "## Files"`);
+  }
+
   if (generatedRange && rulesRange && generatedRange.start > rulesRange.start) {
     issues.push(
       `"## Generated Files" must appear before "## ${RULES_SECTION_HEADING}"`,
@@ -1028,12 +1095,15 @@ function validateAgentsFile(repoRoot, agentsPath, inventoryFiles, options) {
   issues.push(
     ...validateEntrySection('Generated Files', generatedBody, 'generated-file'),
   );
+  issues.push(
+    ...validateEntrySection(IGNORE_SECTION_HEADING, ignoreBody, 'ignored-path'),
+  );
 
   if (directoriesBody !== null || filesBody !== null) {
     const immediateInventory = getImmediateChildren(
       directoryPath,
       inventoryFiles,
-      options.excludedScanDirectories,
+      options.excludedScanPaths,
       options.explicitDirectories,
     );
 
@@ -1089,7 +1159,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
 
   try {
     const repoRoot = getRepoRoot(env, cwd);
-    const excludedScanDirectories = getExcludedScanDirectories(repoRoot);
+    const excludedScanPaths = getExcludedScanPaths(repoRoot);
     const { debug, mode, scope, strictPlaceholders } = parseValidateArguments(
       rawArgs,
       repoRoot,
@@ -1101,7 +1171,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
     });
 
     logger.debug('repo_root_resolved', { repoRoot });
-    logger.debug('scan_exclusions_resolved', { excludedScanDirectories });
+    logger.debug('scan_exclusions_resolved', { excludedScanPaths });
     logger.debug('command_options_resolved', {
       mode,
       preferredRulesSectionHeading:
@@ -1120,7 +1190,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
 
     const { filePaths: allRepositoryPaths, source } = collectRepositoryFiles(
       repoRoot,
-      excludedScanDirectories,
+      excludedScanPaths,
     );
     logger.debug('repository_inventory_collected', {
       pathCount: allRepositoryPaths.length,
@@ -1129,10 +1199,12 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
 
     const inventoryFiles = getInventoryFiles(
       allRepositoryPaths,
-      excludedScanDirectories,
+      excludedScanPaths,
     );
-    const existingAgentsDirectories =
-      getVisibleAgentsDirectories(allRepositoryPaths);
+    const existingAgentsDirectories = getVisibleAgentsDirectories(
+      allRepositoryPaths,
+      excludedScanPaths,
+    );
     const explicitDirectories = getExplicitDirectories(scope);
     const requiredDirectories = getRequiredDirectories(
       inventoryFiles,
@@ -1162,7 +1234,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
       const inventory = getImmediateChildren(
         directoryPath,
         inventoryFiles,
-        excludedScanDirectories,
+        excludedScanPaths,
         explicitDirectories,
       );
       logger.debug('directory_sync_started', {
@@ -1211,7 +1283,7 @@ export async function runValidateAgentsCommand(rawArgs = [], runtime = {}) {
 
     for (const agentsPath of agentsPathsToValidate) {
       const result = validateAgentsFile(repoRoot, agentsPath, inventoryFiles, {
-        excludedScanDirectories,
+        excludedScanPaths,
         explicitDirectories,
         strictPlaceholders,
       });

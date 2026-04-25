@@ -23,6 +23,7 @@ Read `AGENTS.md` files as a layered map of the repository. Start at the repo roo
 - When present, read `## Rules` as the local policy for edits in that directory.
 - Treat indented `Rules:` blocks under child bullets as the most specific guidance for that item.
 - Use `## Generated Files` to spot artifacts that should usually be regenerated instead of hand-edited.
+- Use the root `## Ignore Files and Directories` section for repo-relative paths that the AGENTS scanner should skip.
 - Do not expect one `AGENTS.md` to fully describe grandchildren; walk deeper in the tree when needed.
 
 ## Respect Skill Package Exceptions
@@ -56,7 +57,7 @@ Treat the bundled CLI helpers in this skill package as part of the skill:
 - Add `--debug` to these bundled scripts when you need extra visibility into repo-root resolution, inventory discovery, scope selection, or validation counts.
 - Prefer these bundled scripts before recreating AGENTS sync or validation logic manually.
 - Use manual `AGENTS.md` edits to refine descriptions, rules, or edge cases around the script output, not to replace deterministic script work the helpers already cover.
-- Let the bundled scripts read repo-specific inventory exclusions from the root `AGENTS.md` `## AGENTS Hierarchy` section when that section lists excluded paths.
+- Let the bundled scripts read repo-specific inventory exclusions from the root `AGENTS.md` `## Ignore Files and Directories` section when that section lists ignored paths.
 - Run the bundled scripts from the repository root so they can treat the current working directory as the repo root by default.
 - Do not assume the repository exposes package-manager wrappers such as `pnpm`, `npm`, or `yarn` scripts; use the bundled script path unless the user explicitly asks for a repo-local wrapper.
 - Treat support modules in this directory, such as `scripts/cli-logger.mjs`, as internal implementation helpers for the CLIs rather than direct end-user commands.

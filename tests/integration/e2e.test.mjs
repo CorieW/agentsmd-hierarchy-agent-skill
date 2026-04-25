@@ -121,6 +121,12 @@ const referenceExamples = [
     targetDirectory: 'packages/front/src/features/billing',
   },
 ];
+const rootWithIgnoredPathsReferencePath = path.join(
+  repositoryRoot,
+  'agentsmd-hierarchy',
+  'references',
+  'example-root-with-ignored-paths.md',
+);
 
 function extractMarkdownExample(markdownContent) {
   const match = markdownContent.match(/```md\n([\s\S]*?)\n```/);
@@ -463,6 +469,7 @@ Repository root for a fixture repo that keeps custom trailing metadata.
 - Exclude \`.cache\` from AGENTS scanning.
 `,
       'README.md': 'hello\n',
+      '.cache/output.txt': 'cache\n',
     });
 
     const result = runNode([validateScriptPath, '--sync', '.'], {
@@ -473,6 +480,62 @@ Repository root for a fixture repo that keeps custom trailing metadata.
     await expect(
       readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8'),
     ).resolves.toContain('## AGENTS Hierarchy');
+  });
+
+  it('validate-agents reads ignored files and directories from a dedicated section', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': `# .
+
+Repository root for a fixture repo that documents ignored inventory paths.
+
+## Directories
+
+- None.
+
+## Files
+
+- \`README.md\`: Top-level fixture readme.
+
+## Ignore Files and Directories
+
+- \`.cache/\`: Local cache output ignored by AGENTS scanning.
+- \`debug.log\`: Local debug output ignored by AGENTS scanning.
+`,
+      'README.md': 'hello\n',
+      '.cache/output.txt': 'cache\n',
+      'debug.log': 'debug\n',
+    });
+
+    const result = runNode([validateScriptPath, '--check', 'AGENTS.md'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('AGENTS.md validation passed.');
+  });
+
+  it('validate-agents checks the root ignored paths reference example', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': await loadReferenceExampleContent(
+        rootWithIgnoredPathsReferencePath,
+      ),
+      'README.md': 'hello\n',
+      'package.json': '{\n  "name": "fixture"\n}\n',
+      'docs/guide.md': '# Guide\n',
+      'src/index.js': 'export const ready = true;\n',
+      '.cache/output.txt': 'cache\n',
+      '.changeset/example.md': 'release note\n',
+      'debug.log': 'debug\n',
+    });
+
+    const result = runNode([validateScriptPath, '--check', 'AGENTS.md'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('AGENTS.md validation passed.');
   });
 
   it.each(referenceExamples)(
