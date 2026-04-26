@@ -11,7 +11,7 @@ Automated test suites for the CLI package, split between end-to-end command cove
 
 - None.
 
-## Writing Rules
+## Rules
 
 - Keep public workflow coverage in `integration/` and implementation-focused checks in `unit/`.
 - Favor temporary directories and deterministic runtime setup over assumptions about the developer machine.

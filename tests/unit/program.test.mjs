@@ -17,9 +17,7 @@ describe('createProgram', () => {
     const program = createProgram();
     expect(program.commands.map((command) => command.name())).toEqual([
       'check',
-      'fix',
       'sync',
-      'scaffold',
       'install',
     ]);
   });
@@ -32,6 +30,22 @@ describe('createProgram', () => {
         true,
       );
     }
+  });
+
+  it('keeps --strict-placeholders on the check and sync commands', () => {
+    const checkCommand = getCommand(createProgram(), 'check');
+    const syncCommand = getCommand(createProgram(), 'sync');
+
+    expect(
+      checkCommand.options.some(
+        (option) => option.long === '--strict-placeholders',
+      ),
+    ).toBe(true);
+    expect(
+      syncCommand.options.some(
+        (option) => option.long === '--strict-placeholders',
+      ),
+    ).toBe(true);
   });
 
   it('exposes the install contract flags', () => {

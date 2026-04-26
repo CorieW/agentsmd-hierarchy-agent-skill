@@ -30,7 +30,7 @@ Frontend workspace for routes, components, static assets, and test tooling.
   Rules:
   - Refresh with npm tooling instead of hand-editing.
 
-## Writing Rules
+## Rules
 
 - Keep package-level tooling files at the root and product code under `src/`.
 - Push feature-specific behavior into `src/` rather than package-level config files.

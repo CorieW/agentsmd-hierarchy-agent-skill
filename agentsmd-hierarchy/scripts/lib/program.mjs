@@ -2,6 +2,7 @@ import { Command, CommanderError, Option } from 'commander';
 import { createLogger } from './cli-logger.mjs';
 import { isCommandError } from './errors.mjs';
 import { runInstallCommand } from './install-core.mjs';
+import { runSyncAgentsCommand } from '../sync-agents.mjs';
 import { runValidateAgentsCommand } from './validate-agents-core.mjs';
 
 function addSharedDebugOption(command) {
@@ -52,7 +53,7 @@ export function createProgram(runtime = {}) {
   program
     .name('agentsmd-hierarchy')
     .description(
-      'Validate, scaffold, and install the AGENTS Hierarchy skill bundle.',
+      'Validate, sync, and install the AGENTS Hierarchy skill bundle.',
     )
     .showHelpAfterError()
     .exitOverride();
@@ -80,10 +81,10 @@ export function createProgram(runtime = {}) {
 
   addValidateOptions(
     program
-      .command('fix [path]')
-      .description('Refresh missing or stale AGENTS.md files.'),
+      .command('sync [path]')
+      .description('Create or refresh AGENTS.md files.'),
   ).action(async (targetPath, options) => {
-    const argv = ['--fix'];
+    const argv = [];
     if (targetPath) {
       argv.push(targetPath);
     }
@@ -93,46 +94,9 @@ export function createProgram(runtime = {}) {
     if (options.debug) {
       argv.push('--debug');
     }
-    const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
-    if (exitCode !== 0) {
-      throw new CommanderError(exitCode, 'agentsmd-hierarchy.fix.failed', '');
-    }
-  });
-
-  addSharedDebugOption(
-    program.command('sync [path]').description('Compatibility alias for fix.'),
-  ).action(async (targetPath, options) => {
-    const argv = ['--fix'];
-    if (targetPath) {
-      argv.push(targetPath);
-    }
-    if (options.debug) {
-      argv.push('--debug');
-    }
-    const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
+    const exitCode = await runSyncAgentsCommand(argv, sharedRuntime);
     if (exitCode !== 0) {
       throw new CommanderError(exitCode, 'agentsmd-hierarchy.sync.failed', '');
-    }
-  });
-
-  addSharedDebugOption(
-    program
-      .command('scaffold <dir>')
-      .description(
-        'Scaffold AGENTS.md files for a required repo-relative directory.',
-      ),
-  ).action(async (directory, options) => {
-    const argv = ['--fix', directory];
-    if (options.debug) {
-      argv.push('--debug');
-    }
-    const exitCode = await runValidateAgentsCommand(argv, sharedRuntime);
-    if (exitCode !== 0) {
-      throw new CommanderError(
-        exitCode,
-        'agentsmd-hierarchy.scaffold.failed',
-        '',
-      );
     }
   });
 

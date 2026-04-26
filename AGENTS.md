@@ -26,12 +26,12 @@ Repository root for the AGENTS Hierarchy CLI package, published skill bundle, an
   Rules:
   - Refresh with npm tooling instead of hand-editing it.
 
-## Writing Rules
+## Ignore Files and Directories
+
+- `.changeset/`: Changesets release note entries that should stay out of AGENTS scanning.
+
+## Rules
 
 - Treat `agentsmd-hierarchy/` as the source of truth for the shipped skill bundle and keep root metadata aligned with it.
 - Keep repo-only helpers in `scripts/` and user-facing runtime entrypoints in `bin/`.
 - Refresh generated package artifacts with npm commands rather than manual edits.
-
-## AGENTS Hierarchy
-
-- Exclude `.changeset` from AGENTS scanning because Changesets treats Markdown files there as release note entries.

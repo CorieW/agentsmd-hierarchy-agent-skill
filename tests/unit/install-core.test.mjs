@@ -119,7 +119,7 @@ describe('renderCursorCommandFile', () => {
     const content = renderCursorCommandFile();
 
     expect(content).toContain('agentsmd-hierarchy check <path>');
-    expect(content).toContain('agentsmd-hierarchy fix <path>');
+    expect(content).toContain('agentsmd-hierarchy sync <path>');
     expect(content).toContain('--debug');
   });
 });

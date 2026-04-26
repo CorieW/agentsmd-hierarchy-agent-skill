@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "CLI and installable skill bundle for maintaining hierarchical AGENTS.md files.",
   "type": "module",
+  "homepage": "https://github.com/CorieW/agentsmd-hierarchy-agent-skill#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CorieW/agentsmd-hierarchy-agent-skill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CorieW/agentsmd-hierarchy-agent-skill/issues"
+  },
   "bin": {
     "agentsmd-hierarchy": "bin/agentsmd-hierarchy.mjs"
   },
@@ -12,7 +20,7 @@
   ],
   "scripts": {
     "agents:check": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --check",
-    "agents:fix": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --fix",
+    "agents:sync": "node ./agentsmd-hierarchy/scripts/validate-agents.mjs --sync",
     "changeset": "changeset",
     "dev:install-codex-skill": "node ./scripts/dev-install-codex-skill.mjs",
     "format": "prettier --write .",

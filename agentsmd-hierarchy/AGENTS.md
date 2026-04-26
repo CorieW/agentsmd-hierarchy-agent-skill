@@ -14,7 +14,7 @@ Distributable skill bundle for AGENTS Hierarchy, combining the main skill instru
 
 - `SKILL.md`: Primary skill instructions that describe the AGENTS hierarchy workflow and preferred bundled commands.
 
-## Writing Rules
+## Rules
 
 - Keep `SKILL.md`, `agents/openai.yaml`, and the bundled scripts aligned so the documented workflow matches actual behavior.
 - Put reusable CLI logic under `scripts/lib/` and reserve top-level script files for thin entrypoints or prompt helpers.

@@ -27,7 +27,7 @@ Frontend application source for route definitions, UI components, and bootstrapp
   Rules:
   - Regenerate it through routing tooling instead of hand-editing.
 
-## Writing Rules
+## Rules
 
 - Separate bootstrap, shared logic, components, and routes by responsibility.
 - Treat generated router output as read-only.

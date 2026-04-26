@@ -9,7 +9,7 @@
 
 ## Why This Exists
 
-Large repos get messy fast. `AGENTS.md` files work best when they behave like a map: each directory explains its immediate children, local writing rules, and how guidance cascades down the tree.
+Large repos get messy fast. `AGENTS.md` files work best when they behave like a map: each directory explains its immediate children, any local rules, and how guidance cascades down the tree.
 
 That keeps any single `AGENTS.md` lighter, which reduces context load and can improve model performance. It is useful for humans too, because the same hierarchy makes the project's structure easier to understand.
 
@@ -98,8 +98,8 @@ Once installed globally, or via `npx`, the main workflow looks like this:
 
 ```bash
 agentsmd-hierarchy check .
-agentsmd-hierarchy fix .
-agentsmd-hierarchy scaffold src/components
+agentsmd-hierarchy sync .
+agentsmd-hierarchy sync src/components
 ```
 
 ### `check [path]`
@@ -111,29 +111,13 @@ agentsmd-hierarchy check packages/app
 agentsmd-hierarchy check . --strict-placeholders
 ```
 
-### `fix [path]`
-
-Refresh missing or stale `AGENTS.md` files.
-
-```bash
-agentsmd-hierarchy fix .
-agentsmd-hierarchy fix tests
-```
-
 ### `sync [path]`
 
-Compatibility alias for `fix`.
+Create or refresh `AGENTS.md` files.
 
 ```bash
 agentsmd-hierarchy sync .
-```
-
-### `scaffold <dir>`
-
-Create the first `AGENTS.md` for a repo-relative directory.
-
-```bash
-agentsmd-hierarchy scaffold src/features/payments
+agentsmd-hierarchy sync src/features/payments
 ```
 
 ### `install`
@@ -164,7 +148,7 @@ The shipped skill teaches agents to:
 
 - Read the `AGENTS.md` chain from repo root to target path
 - Treat each file as documentation for immediate children only
-- Use bundled helpers to validate and scaffold docs deterministically
+- Use bundled helpers to validate and sync docs deterministically
 - Keep parent and child `AGENTS.md` files aligned as the tree evolves
 
 ## Local Development

@@ -10,7 +10,7 @@ GitHub-specific automation configuration for dependency updates, CI workflows, a
 
 - `dependabot.yml`: Dependabot update policy for repository dependencies.
 
-## Writing Rules
+## Rules
 
 - Keep shared GitHub automation intent documented here as workflow inventory changes.
 - Prefer reusable workflow structure and clear workflow names because these files surface directly in the GitHub UI.
