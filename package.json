@@ -1,6 +1,6 @@
 {
   "name": "agentsmd-hierarchy",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "CLI and installable skill bundle for maintaining hierarchical AGENTS.md files.",
   "type": "module",
   "homepage": "https://github.com/CorieW/agentsmd-hierarchy-agent-skill#readme",
