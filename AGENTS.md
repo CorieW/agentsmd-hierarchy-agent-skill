@@ -15,6 +15,7 @@ Repository root for the AGENTS Hierarchy CLI package, published skill bundle, an
 
 - `.gitignore`: Ignore rules for installed dependencies, local test output, OS clutter, and packaged archives.
 - `.prettierignore`: Prettier ignore rules for generated or local-only paths that should stay out of repo-wide formatting runs.
+- `CHANGELOG.md`: Release history for published package versions.
 - `README.md`: Package landing page that explains installation targets, CLI usage, and the distributed skill bundle for end users.
 - `eslint.config.mjs`: Flat ESLint configuration for the Node ESM source files and tests in this package.
 - `package.json`: Package manifest for the CLI, published files, and test scripts.
