@@ -1,22 +1,12 @@
-# Simple Example: Test Helpers Directory
+# Simple Example: Test Helpers
 
-Use this example when a directory is small, focused, and mostly holds helper code for one part of the repo.
+Use this example when a helper directory needs shared testing rules.
 
 ```md
 # packages/back/tests/helpers
 
-Shared helpers used by backend test suites.
-
-## Directories
-
-- None.
-
-## Files
-
-- `integration.ts`: Creates reusable setup helpers for backend integration tests.
-
 ## Rules
 
-- Keep helpers generic enough to serve multiple suites.
-- Do not hide important assertions inside helper utilities.
+- Keep helpers deterministic and avoid hidden dependencies on test order.
+- Prefer factory helpers over shared mutable fixtures.
 ```

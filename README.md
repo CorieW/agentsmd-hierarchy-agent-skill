@@ -1,23 +1,23 @@
 # AGENTS Hierarchy
 
-> A sharp little CLI and installable skill bundle for keeping layered `AGENTS.md` docs accurate, readable, and in sync with your repo.
+> A compact CLI and installable skill bundle for keeping layered `AGENTS.md` rules files current.
 
 `agentsmd-hierarchy` packages two things together:
 
-- A CLI for checking, scaffolding, and refreshing hierarchical `AGENTS.md` files
+- A CLI for validating, normalizing, and pruning rules-only `AGENTS.md` files
 - An installable skill bundle you can drop into Codex, Claude Code, Cursor, or a Codex plugin directory
 
 ## Why This Exists
 
-Large repos get messy fast. `AGENTS.md` files work best when they behave like a map: each directory explains its immediate children, any local rules, and how guidance cascades down the tree.
+Large repos still need local editing guidance, but v3 keeps `AGENTS.md` focused on rules instead of directory inventory. Each `AGENTS.md` should exist only when a directory has rules that apply to that subtree.
 
-That keeps any single `AGENTS.md` lighter, which reduces context load and can improve model performance. It is useful for humans too, because the same hierarchy makes the project's structure easier to understand.
+Use comments at the top of individual source files for single-file rules. The CLI expects that pattern, but it does not scan or enforce those comments.
 
-This package helps you keep that map healthy without hand-maintaining everything:
+This package helps keep rules files healthy:
 
-- Validate stale or malformed `AGENTS.md` files
-- Scaffold missing docs for new directories
-- Refresh inventory sections after the tree changes
+- Validate malformed or obsolete `AGENTS.md` files
+- Normalize legacy rules files to the v3 layout
+- Prune AGENTS files that no longer contain real Rules
 - Install the skill where your agent tooling can actually use it
 
 ## Works With
@@ -104,16 +104,16 @@ agentsmd-hierarchy sync src/components
 
 ### `check [path]`
 
-Validate `AGENTS.md` files without changing them.
+Validate existing `AGENTS.md` files without changing them. Directory scopes include existing ancestor AGENTS files plus existing AGENTS files under the target directory. Passing an `AGENTS.md` file validates only that file.
 
 ```bash
 agentsmd-hierarchy check packages/app
-agentsmd-hierarchy check . --strict-placeholders
+agentsmd-hierarchy check packages/app/AGENTS.md
 ```
 
 ### `sync [path]`
 
-Create or refresh `AGENTS.md` files.
+Normalize existing rules-bearing `AGENTS.md` files and delete rules-empty files. This command does not create new AGENTS files.
 
 ```bash
 agentsmd-hierarchy sync .
@@ -131,9 +131,23 @@ agentsmd-hierarchy install --tool codex --scope project --no-prompt
 Helpful flags:
 
 - `--debug` for structured troubleshooting output
-- `--dry-run` to preview changes
+- `--dry-run` to preview install changes
 - `--json` to emit install summaries as JSON
-- `--force` to replace unmanaged destinations
+- `--force` to replace unmanaged install destinations
+
+## v3 AGENTS Format
+
+The accepted file format is intentionally small:
+
+```md
+# path/to/directory
+
+## Rules
+
+- Keep directory-level guidance here.
+```
+
+Rules must be a non-empty bullet list. Inventory sections such as `## Directories`, `## Files`, `## Generated Files`, and `## Ignore Files and Directories` are obsolete in v3 and fail validation.
 
 ## What Gets Installed
 
@@ -146,10 +160,10 @@ Depending on the target, this package installs:
 
 The shipped skill teaches agents to:
 
-- Read the `AGENTS.md` chain from repo root to target path
-- Treat each file as documentation for immediate children only
-- Use bundled helpers to validate and sync docs deterministically
-- Keep parent and child `AGENTS.md` files aligned as the tree evolves
+- Read the `AGENTS.md` rules chain from repo root to target path
+- Treat `AGENTS.md` files as directory-level Rules only
+- Put single-file rules in comments at the top of the relevant source file
+- Use bundled helpers to validate, normalize, and prune rules files deterministically
 
 ## Local Development
 
