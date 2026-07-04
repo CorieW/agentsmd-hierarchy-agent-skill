@@ -1,19 +1,5 @@
 # agentsmd-hierarchy
 
-Distributable skill bundle for AGENTS Hierarchy, combining the main skill instructions with agent metadata, reference docs, and bundled helper scripts.
-
-## Directories
-
-- `agents/`: Agent integration metadata for tool registries.
-- `references/`: Convention docs and example AGENTS files that support the skill instructions.
-- `scripts/`: Bundled helper CLIs and shared implementation used by the skill workflow.
-  Rules:
-  - Keep command entrypoints small and move reusable behavior into `scripts/lib/`.
-
-## Files
-
-- `SKILL.md`: Primary skill instructions that describe the AGENTS hierarchy workflow and preferred bundled commands.
-
 ## Rules
 
 - Keep `SKILL.md`, `agents/openai.yaml`, and the bundled scripts aligned so the documented workflow matches actual behavior.
