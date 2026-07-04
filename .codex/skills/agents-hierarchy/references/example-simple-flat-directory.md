@@ -1,23 +1,12 @@
 # Simple Example: Flat Utility Directory
 
-Use this example when a directory has only files and no child directories.
+Use this example when a flat directory has directory-level editing rules.
 
 ```md
 # scripts
 
-Helper scripts for local repo maintenance.
+## Rules
 
-## Directories
-
-- None.
-
-## Files
-
-- `rename-project.js`: Renames the project across package manifests and docs.
-- `verify-preview.mjs`: Checks that the preview app responds on expected routes.
-
-## Writing Rules
-
-- Keep scripts deterministic and safe to run from automation.
-- Keep script names tied to the repo task they automate.
+- Keep local maintenance scripts small and safe to run from the repository root.
+- Put script-specific usage notes in top-of-file comments inside the script itself.
 ```

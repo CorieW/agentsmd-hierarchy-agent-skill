@@ -1,17 +1,17 @@
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { confirm, input, select } from '@inquirer/prompts';
+import { input, select } from '@inquirer/prompts';
 import fs from 'fs-extra';
 import { createLogger } from './cli-logger.mjs';
 import { CommandError, isCommandError } from './errors.mjs';
 
-const PACKAGE_NAME = 'agents-hierarchy';
-const RECEIPT_FILE_NAME = '.agents-hierarchy-install.json';
+const PACKAGE_NAME = 'agentsmd-hierarchy';
+const RECEIPT_FILE_NAME = '.agentsmd-hierarchy-install.json';
 const CURSOR_COMMAND_RECEIPT_FILE_NAME =
-  '.agents-hierarchy-command-install.json';
+  '.agentsmd-hierarchy-command-install.json';
 
 function getPackageRoot() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
@@ -23,7 +23,7 @@ function getPackageMetadata() {
 }
 
 function getSkillSourceDirectory() {
-  return path.join(getPackageRoot(), 'agents-hierarchy');
+  return path.join(getPackageRoot(), 'agentsmd-hierarchy');
 }
 
 function canPrompt(stdout = process.stdout, stdin = process.stdin) {
@@ -77,7 +77,7 @@ function validateResolvedMode(tool, mode) {
   const supportedModes = getSupportedModes(tool);
   if (!supportedModes.includes(mode)) {
     throw new CommandError(
-      `Mode "${mode}" is not supported for tool "${tool}".`
+      `Mode "${mode}" is not supported for tool "${tool}".`,
     );
   }
 }
@@ -101,7 +101,7 @@ function ensureDeterministicInstallInputs(options, projectRoot) {
 
   if (options.scope === 'project' && !options.projectRoot && !projectRoot) {
     throw new CommandError(
-      'Pass --project-root or run inside a git repository for project installs.'
+      'Pass --project-root or run inside a git repository for project installs.',
     );
   }
 }
@@ -112,7 +112,7 @@ async function resolveInteractiveChoice(options, runtime, projectRoot, logger) {
 
   if (!canPrompt(stdout, stdin)) {
     throw new CommandError(
-      'Interactive install requires a TTY. Re-run with --no-prompt and explicit flags.'
+      'Interactive install requires a TTY. Re-run with --no-prompt and explicit flags.',
     );
   }
 
@@ -147,7 +147,8 @@ async function resolveInteractiveChoice(options, runtime, projectRoot, logger) {
     scope = await select({
       choices: [
         {
-          name: defaultScope === 'project' ? 'Project (recommended)' : 'Project',
+          name:
+            defaultScope === 'project' ? 'Project (recommended)' : 'Project',
           value: 'project',
         },
         {
@@ -168,7 +169,7 @@ async function resolveInteractiveChoice(options, runtime, projectRoot, logger) {
       mode = supportedModes[0];
     } else {
       mode = await select({
-        choices: supportedModes.map(candidate => ({
+        choices: supportedModes.map((candidate) => ({
           name:
             candidate === 'skill'
               ? 'Skill bundle'
@@ -186,8 +187,7 @@ async function resolveInteractiveChoice(options, runtime, projectRoot, logger) {
   let dest = options.dest;
   if (tool === 'codex' && mode === 'plugin' && !dest) {
     dest = await input({
-      message:
-        'Enter the destination directory for the Codex plugin bundle:',
+      message: 'Enter the destination directory for the Codex plugin bundle:',
       validate(value) {
         return value.trim()
           ? true
@@ -229,7 +229,10 @@ function resolveProjectInstallRoot({
 
 function getReceiptPath(plan) {
   return plan.layout === 'file'
-    ? path.join(path.dirname(plan.destination), CURSOR_COMMAND_RECEIPT_FILE_NAME)
+    ? path.join(
+        path.dirname(plan.destination),
+        CURSOR_COMMAND_RECEIPT_FILE_NAME,
+      )
     : path.join(plan.destination, RECEIPT_FILE_NAME);
 }
 
@@ -258,11 +261,15 @@ async function resolveManagedState(plan) {
 function buildSkillDestination(tool, scope, homeDirectory, projectRoot) {
   const parentDirectory =
     scope === 'personal'
-      ? path.join(homeDirectory, tool === 'codex' ? '.codex' : '.claude', 'skills')
+      ? path.join(
+          homeDirectory,
+          tool === 'codex' ? '.codex' : '.claude',
+          'skills',
+        )
       : path.join(
           projectRoot,
           tool === 'codex' ? '.codex' : '.claude',
-          'skills'
+          'skills',
         );
 
   return path.join(parentDirectory, PACKAGE_NAME);
@@ -292,7 +299,7 @@ function buildInstallDestination({
 
   if (mode === 'plugin') {
     throw new CommandError(
-      'Codex plugin export requires --dest or an interactive destination selection.'
+      'Codex plugin export requires --dest or an interactive destination selection.',
     );
   }
 
@@ -302,7 +309,7 @@ function buildInstallDestination({
 
   if (scope === 'project' && !projectRoot) {
     throw new CommandError(
-      'Project installs require --project-root or a detectable git repository.'
+      'Project installs require --project-root or a detectable git repository.',
     );
   }
 
@@ -321,34 +328,33 @@ export function renderCursorCommandFile() {
   return [
     '# AGENTS Hierarchy',
     '',
-    'Use the `agents-hierarchy` CLI to inspect or refresh layered `AGENTS.md` files.',
+    'Use the `agentsmd-hierarchy` CLI to validate, normalize, or prune rules-only `AGENTS.md` files.',
     '',
     'Preferred commands:',
-    '- `agents-hierarchy check <path>` to validate AGENTS coverage.',
-    '- `agents-hierarchy fix <path>` to scaffold or refresh AGENTS.md files.',
-    '- `agents-hierarchy scaffold <dir>` when a new directory needs its first AGENTS.md.',
+    '- `agentsmd-hierarchy check <path>` to validate existing rules-only AGENTS files.',
+    '- `agentsmd-hierarchy sync <path>` to normalize rules-bearing files and prune rules-empty files.',
     '- Add `--debug` on any command when trace output would help.',
     '',
-    'If the CLI is not on `PATH`, fall back to `npx -y agents-hierarchy <subcommand> ...`.',
+    'If the CLI is not on `PATH`, fall back to `npx -y agentsmd-hierarchy <subcommand> ...`.',
   ].join('\n');
 }
 
 function buildPluginManifest(packageMetadata) {
   return {
     description:
-      'Installable AGENTS Hierarchy plugin bundle for Codex with the packaged skill and CLI helpers.',
+      'Installable AGENTS Hierarchy plugin bundle for Codex with packaged rules-only AGENTS helpers.',
     interface: {
       capabilities: ['Interactive', 'Write'],
       category: 'Productivity',
       defaultPrompt: [
-        'Read the AGENTS chain for this repository and fix stale AGENTS.md files.',
-        'Validate the AGENTS hierarchy under a changed package with debug output.',
-        'Scaffold a missing AGENTS.md for a newly added source directory.',
+        'Read the AGENTS chain for this repository and follow the directory rules.',
+        'Validate the rules-only AGENTS files under a changed package with debug output.',
+        'Sync an existing AGENTS.md file so obsolete inventory sections are removed.',
       ],
       developerName: packageMetadata.author,
       displayName: 'AGENTS Hierarchy',
       longDescription:
-        'Packages the AGENTS Hierarchy skill and helper scripts so Codex can validate, scaffold, and maintain layered AGENTS.md files.',
+        'Packages the AGENTS Hierarchy skill and helper scripts so Codex can validate, normalize, and prune layered rules-only AGENTS.md files.',
       shortDescription:
         'Installable AGENTS Hierarchy skill bundle and helper scripts.',
     },
@@ -367,15 +373,14 @@ export async function resolveInstallPlan(rawOptions = {}, runtime = {}) {
     ? normalizeInstallPath(rawOptions.projectRoot, cwd)
     : null;
   const logStdout = rawOptions.json
-    ? runtime.stderr ?? process.stderr
-    : runtime.stdout ?? process.stdout;
+    ? (runtime.stderr ?? process.stderr)
+    : (runtime.stdout ?? process.stdout);
   const logger = createLogger('install', {
     debugEnabled: Boolean(rawOptions.debug),
     stderr: runtime.stderr ?? process.stderr,
     stdout: logStdout,
   });
-  const detectedProjectRoot =
-    explicitProjectRoot ?? detectProjectRoot(cwd);
+  const detectedProjectRoot = explicitProjectRoot ?? detectProjectRoot(cwd);
   const options = {
     debug: Boolean(rawOptions.debug),
     dest: rawOptions.dest ?? null,
@@ -398,9 +403,19 @@ export async function resolveInstallPlan(rawOptions = {}, runtime = {}) {
 
   const interactiveOptions =
     options.prompt && (!options.tool || (!options.scope && !options.dest))
-      ? await resolveInteractiveChoice(options, runtime, detectedProjectRoot, logger)
+      ? await resolveInteractiveChoice(
+          options,
+          runtime,
+          detectedProjectRoot,
+          logger,
+        )
       : options.prompt && options.tool && !options.mode
-        ? await resolveInteractiveChoice(options, runtime, detectedProjectRoot, logger)
+        ? await resolveInteractiveChoice(
+            options,
+            runtime,
+            detectedProjectRoot,
+            logger,
+          )
         : options;
 
   const tool = interactiveOptions.tool;
@@ -413,7 +428,7 @@ export async function resolveInstallPlan(rawOptions = {}, runtime = {}) {
 
   const scope = interactiveOptions.dest
     ? interactiveOptions.scope
-    : interactiveOptions.scope ?? getDefaultScope(detectedProjectRoot);
+    : (interactiveOptions.scope ?? getDefaultScope(detectedProjectRoot));
   const projectRoot = resolveProjectInstallRoot({
     cwd,
     detectedProjectRoot,
@@ -479,7 +494,7 @@ async function assertInstallableDestination(plan, managedState) {
   }
 
   throw new CommandError(
-    `Destination already exists and is not managed by ${PACKAGE_NAME}: ${plan.destination}. Re-run with --force to replace it.`
+    `Destination already exists and is not managed by ${PACKAGE_NAME}: ${plan.destination}. Re-run with --force to replace it.`,
   );
 }
 
@@ -526,7 +541,9 @@ async function installSkillBundle(plan, managedState, logger) {
   await clearDestination(plan);
   await fs.copy(sourceDirectory, plan.destination, { overwrite: true });
   await writeReceipt(managedState, plan);
-  logger.success(`Installed skill bundle to ${logger.style(plan.destination, 'path')}.`);
+  logger.success(
+    `Installed skill bundle to ${logger.style(plan.destination, 'path')}.`,
+  );
   return operations;
 }
 
@@ -543,9 +560,15 @@ async function installCursorCommand(plan, managedState, logger) {
   }
 
   await fs.ensureDir(path.dirname(plan.destination));
-  await fs.writeFile(plan.destination, `${renderCursorCommandFile()}\n`, 'utf8');
+  await fs.writeFile(
+    plan.destination,
+    `${renderCursorCommandFile()}\n`,
+    'utf8',
+  );
   await writeReceipt(managedState, plan);
-  logger.success(`Installed Cursor command to ${logger.style(plan.destination, 'path')}.`);
+  logger.success(
+    `Installed Cursor command to ${logger.style(plan.destination, 'path')}.`,
+  );
   return operations;
 }
 
@@ -553,12 +576,12 @@ async function installCodexPlugin(plan, managedState, logger) {
   const pluginManifestPath = path.join(
     plan.destination,
     '.codex-plugin',
-    'plugin.json'
+    'plugin.json',
   );
   const pluginSkillDestination = path.join(
     plan.destination,
     'skills',
-    PACKAGE_NAME
+    PACKAGE_NAME,
   );
   const packageMetadata = getPackageMetadata();
   const operations = [
@@ -579,18 +602,22 @@ async function installCodexPlugin(plan, managedState, logger) {
 
   await clearDestination(plan);
   await fs.ensureDir(path.dirname(pluginManifestPath));
-  await fs.outputJson(pluginManifestPath, buildPluginManifest(packageMetadata), {
-    spaces: 2,
-  });
+  await fs.outputJson(
+    pluginManifestPath,
+    buildPluginManifest(packageMetadata),
+    {
+      spaces: 2,
+    },
+  );
   await fs.copy(getSkillSourceDirectory(), pluginSkillDestination, {
     overwrite: true,
   });
   await writeReceipt(managedState, plan);
   logger.success(
-    `Exported Codex plugin bundle to ${logger.style(plan.destination, 'path')}.`
+    `Exported Codex plugin bundle to ${logger.style(plan.destination, 'path')}.`,
   );
   logger.note(
-    'If you use a local Codex marketplace, register the exported plugin path there manually.'
+    'If you use a local Codex marketplace, register the exported plugin path there manually.',
   );
   return operations;
 }
@@ -625,15 +652,15 @@ export async function runInstallCommand(rawOptions = {}, runtime = {}) {
 
     if (plan.mode === 'skill') {
       operations.push(
-        ...(await installSkillBundle(plan, managedState, logger))
+        ...(await installSkillBundle(plan, managedState, logger)),
       );
     } else if (plan.mode === 'command') {
       operations.push(
-        ...(await installCursorCommand(plan, managedState, logger))
+        ...(await installCursorCommand(plan, managedState, logger)),
       );
     } else if (plan.mode === 'plugin') {
       operations.push(
-        ...(await installCodexPlugin(plan, managedState, logger))
+        ...(await installCodexPlugin(plan, managedState, logger)),
       );
     } else {
       throw new CommandError(`Unsupported install mode: ${plan.mode}`);
@@ -643,7 +670,9 @@ export async function runInstallCommand(rawOptions = {}, runtime = {}) {
     if (plan.json) {
       stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
     } else if (plan.dryRun) {
-      logger.note(`Dry run only. Would install to ${logger.style(plan.destination, 'path')}.`);
+      logger.note(
+        `Dry run only. Would install to ${logger.style(plan.destination, 'path')}.`,
+      );
     }
 
     logger.debug('install_operation_completed', summary);

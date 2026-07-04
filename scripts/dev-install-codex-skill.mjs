@@ -13,7 +13,7 @@ const destinationDirectory = path.join(
   repositoryRoot,
   '.codex',
   'skills',
-  'agentsmd-hierarchy',
+  'agents-hierarchy',
 );
 
 await fs.remove(destinationDirectory);

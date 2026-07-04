@@ -1,37 +1,13 @@
-# Complex Example: Package Root
+# Example: Package Root
 
-Use this example when a package root mixes config files, child directories, and tracked generated artifacts.
+Use this example when a package root has rules that apply across config, source, public assets, and tests.
 
 ```md
 # packages/front
 
-Frontend workspace for routes, components, static assets, and test tooling.
+## Rules
 
-## Directories
-
-- `e2e/`: Playwright suites for real user journeys.
-- `public/`: Static files served directly by the app.
-- `src/`: Application code for routes, components, and shared libraries.
-
-## Files
-
-- `.env.example`: Example frontend environment variables.
-  Rules:
-  - Keep it aligned with runtime env usage.
-- `package.json`: Frontend package manifest and scripts.
-  Rules:
-  - Keep scripts aligned with Vite and Playwright config.
-- `playwright.config.ts`: Playwright configuration for browser coverage.
-- `vite.config.ts`: Vite dev and build configuration.
-
-## Generated Files
-
-- `package-lock.json`: npm lockfile kept for tool compatibility.
-  Rules:
-  - Refresh with npm tooling instead of hand-editing.
-
-## Writing Rules
-
-- Keep package-level tooling files at the root and product code under `src/`.
-- Push feature-specific behavior into `src/` rather than package-level config files.
+- Keep package-level scripts, config, and source changes aligned so local development and CI use the same entrypoints.
+- Regenerate lockfiles with npm tooling instead of hand-editing them.
+- Put file-specific setup notes in top-of-file comments inside the relevant config or source file.
 ```

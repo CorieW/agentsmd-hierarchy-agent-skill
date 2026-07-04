@@ -96,7 +96,7 @@ export function createLogger(name, options = {}) {
       level,
       stdout,
       stderr,
-      ...getLevelStyle(level)
+      ...getLevelStyle(level),
     );
     stream.write(`${prefix} ${styledLevel} ${message}\n`);
   }
