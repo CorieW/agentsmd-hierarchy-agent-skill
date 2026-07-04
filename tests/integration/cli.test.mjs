@@ -77,8 +77,9 @@ describe('CLI integration', () => {
       },
     );
 
-    expect(result.status).toBe(1);
+    expect(result.status).toBe(0);
     expect(result.stdout).toContain('DEBUG');
-    expect(result.stderr).toContain('AGENTS.md files are out of date');
+    expect(result.stdout).toContain('No AGENTS.md files found for this scope.');
+    expect(result.stderr).toBe('');
   });
 });

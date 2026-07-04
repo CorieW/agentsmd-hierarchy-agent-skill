@@ -26,107 +26,60 @@ const syncScriptPath = path.join(
 );
 const referenceExamples = [
   {
-    name: 'simple flat directory',
     referencePath: path.join(
       repositoryRoot,
       'agentsmd-hierarchy',
       'references',
       'example-simple-flat-directory.md',
     ),
-    supportingFiles: {
-      'scripts/rename-project.js': 'export function renameProject() {}\n',
-      'scripts/verify-preview.mjs':
-        'export async function verifyPreview() {}\n',
-    },
     targetDirectory: 'scripts',
   },
   {
-    name: 'simple test helpers directory',
     referencePath: path.join(
       repositoryRoot,
       'agentsmd-hierarchy',
       'references',
       'example-simple-test-helpers.md',
     ),
-    supportingFiles: {
-      'packages/back/tests/helpers/integration.ts':
-        'export function createIntegrationHelper() {}\n',
-    },
     targetDirectory: 'packages/back/tests/helpers',
   },
   {
-    name: 'complex package root',
     referencePath: path.join(
       repositoryRoot,
       'agentsmd-hierarchy',
       'references',
       'example-complex-package-root.md',
     ),
-    supportingFiles: {
-      'packages/front/.env.example': 'API_URL=https://example.test\n',
-      'packages/front/e2e/smoke.spec.ts':
-        "import { test } from '@playwright/test';\n",
-      'packages/front/package-lock.json': '{\n  "name": "front"\n}\n',
-      'packages/front/package.json': '{\n  "name": "front"\n}\n',
-      'packages/front/playwright.config.ts': 'export default {};\n',
-      'packages/front/public/logo.svg': '<svg></svg>\n',
-      'packages/front/src/index.ts': 'export const ready = true;\n',
-      'packages/front/vite.config.ts': 'export default {};\n',
-    },
     targetDirectory: 'packages/front',
   },
   {
-    name: 'complex source directory',
     referencePath: path.join(
       repositoryRoot,
       'agentsmd-hierarchy',
       'references',
       'example-complex-source-directory.md',
     ),
-    supportingFiles: {
-      'packages/front/src/components/button.tsx':
-        'export function Button() { return null; }\n',
-      'packages/front/src/lib/api.ts': 'export const api = {};\n',
-      'packages/front/src/router.tsx': 'export const router = {};\n',
-      'packages/front/src/routes/index.tsx':
-        'export function Route() { return null; }\n',
-      'packages/front/src/routeTree.gen.ts': 'export const routeTree = {};\n',
-      'packages/front/src/start.ts': 'export function start() {}\n',
-      'packages/front/src/styles.css': ':root {}\n',
-    },
     targetDirectory: 'packages/front/src',
   },
   {
-    name: 'directory with custom trailing sections',
     referencePath: path.join(
       repositoryRoot,
       'agentsmd-hierarchy',
       'references',
       'example-custom-trailing-sections.md',
     ),
-    supportingFiles: {
-      'packages/front/src/features/billing/components/card.tsx':
-        'export function BillingCard() { return null; }\n',
-      'packages/front/src/features/billing/constants.ts':
-        'export const BILLING_COPY = {};\n',
-      'packages/front/src/features/billing/index.ts':
-        "export * from './useBilling';\n",
-      'packages/front/src/features/billing/lib/client.ts':
-        'export const billingClient = {};\n',
-      'packages/front/src/features/billing/routes/index.tsx':
-        'export function BillingRoute() { return null; }\n',
-      'packages/front/src/features/billing/useBilling.ts':
-        'export function useBilling() { return {}; }\n',
-    },
     targetDirectory: 'packages/front/src/features/billing',
   },
+  {
+    referencePath: path.join(
+      repositoryRoot,
+      'agentsmd-hierarchy',
+      'references',
+      'example-root-with-ignored-paths.md',
+    ),
+    targetDirectory: '.',
+  },
 ];
-const rootWithIgnoredPathsReferencePath = path.join(
-  repositoryRoot,
-  'agentsmd-hierarchy',
-  'references',
-  'example-root-with-ignored-paths.md',
-);
 
 function extractMarkdownExample(markdownContent) {
   const match = markdownContent.match(/```md\n([\s\S]*?)\n```/);
@@ -139,25 +92,6 @@ function extractMarkdownExample(markdownContent) {
 
 async function loadReferenceExampleContent(referencePath) {
   return extractMarkdownExample(await readFile(referencePath, 'utf8'));
-}
-
-async function createReferenceExampleRepo(
-  example,
-  { includeAgents = true, legacyRulesHeading = false } = {},
-) {
-  const files = { ...example.supportingFiles };
-
-  if (includeAgents) {
-    let agentsContent = await loadReferenceExampleContent(
-      example.referencePath,
-    );
-    if (legacyRulesHeading) {
-      agentsContent = agentsContent.replace('## Rules', '## Writing Rules');
-    }
-    files[`${example.targetDirectory}/AGENTS.md`] = agentsContent;
-  }
-
-  return createFixtureRepo(files);
 }
 
 async function makeTempDirectory() {
@@ -191,34 +125,8 @@ function runNode(arguments_, options = {}) {
   });
 }
 
-function runCommand(command, arguments_, options = {}) {
-  return spawnSync(command, arguments_, {
-    cwd: options.cwd ?? repositoryRoot,
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      ...options.env,
-    },
-  });
-}
-
-function combinedOutput(result) {
-  return `${result.stdout}${result.stderr}`;
-}
-
-function initializeGitRepository(cwd) {
-  expect(runCommand('git', ['init'], { cwd }).status).toBe(0);
-  expect(
-    runCommand('git', ['config', 'user.name', 'Codex Test'], { cwd }).status,
-  ).toBe(0);
-  expect(
-    runCommand('git', ['config', 'user.email', 'codex@example.com'], { cwd })
-      .status,
-  ).toBe(0);
-  expect(runCommand('git', ['add', '.'], { cwd }).status).toBe(0);
-  expect(
-    runCommand('git', ['commit', '-m', 'Initial commit'], { cwd }).status,
-  ).toBe(0);
+function validAgents(directoryPath, rules = ['Keep edits focused.']) {
+  return `# ${directoryPath}\n\n## Rules\n\n${rules.map((rule) => `- ${rule}`).join('\n')}\n`;
 }
 
 afterEach(async () => {
@@ -230,152 +138,220 @@ afterEach(async () => {
 });
 
 describe('CLI end-to-end workflows', () => {
-  it('sync scaffolds the AGENTS chain and check passes for the generated files', async () => {
+  it('check passes when a repo has no AGENTS files', async () => {
+    const repoRoot = await createFixtureRepo({
+      'README.md': 'hello\n',
+      'src/index.js': 'export const ready = true;\n',
+    });
+
+    const result = runNode([cliPath, 'check', '.'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('No AGENTS.md files found for this scope.');
+    expect(result.stdout).toContain('AGENTS.md validation passed.');
+  });
+
+  it('sync creates no AGENTS files when none exist', async () => {
     const repoRoot = await createFixtureRepo({
       'README.md': 'hello\n',
       'src/components/index.js': 'export const answer = 42;\n',
     });
 
-    const syncResult = runNode([cliPath, 'sync', '.'], {
+    const result = runNode([cliPath, 'sync', '.'], {
       cwd: repoRoot,
     });
 
-    expect(syncResult.status).toBe(0);
-    expect(combinedOutput(syncResult)).toContain('Created AGENTS.md');
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
     await expect(fs.pathExists(path.join(repoRoot, 'AGENTS.md'))).resolves.toBe(
-      true,
+      false,
     );
     await expect(
       fs.pathExists(path.join(repoRoot, 'src', 'AGENTS.md')),
-    ).resolves.toBe(true);
-    await expect(
-      fs.pathExists(path.join(repoRoot, 'src', 'components', 'AGENTS.md')),
-    ).resolves.toBe(true);
-
-    const rootAgents = await readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8');
-    expect(rootAgents).toContain('- `src/`: TODO describe this subdirectory.');
-    expect(rootAgents).toContain('- `README.md`: TODO describe this file.');
-    expect(rootAgents).not.toContain('## Rules');
-
-    const checkResult = runNode(
-      [cliPath, 'check', 'src/components/AGENTS.md'],
-      {
-        cwd: repoRoot,
-      },
-    );
-
-    expect(checkResult.status).toBe(0);
-    expect(checkResult.stderr).toBe('');
-    expect(checkResult.stdout).toContain(
-      'src/components/AGENTS.md passed validation.',
-    );
+    ).resolves.toBe(false);
+    expect(result.stdout).toContain('AGENTS.md files were already in sync.');
   });
 
-  it('check --strict-placeholders fails when scaffolded placeholder text remains', async () => {
+  it('check accepts title plus non-empty Rules', async () => {
     const repoRoot = await createFixtureRepo({
-      'README.md': 'hello\n',
+      'AGENTS.md': validAgents('.', [
+        'Keep repo-wide automation behavior documented here.',
+      ]),
+      'src/AGENTS.md': validAgents('src', [
+        'Keep source modules small and explicit.',
+      ]),
+      'src/index.js': 'export const ready = true;\n',
     });
 
-    const syncResult = runNode(
-      [cliPath, 'sync', '.', '--strict-placeholders'],
-      {
-        cwd: repoRoot,
-      },
-    );
-    expect(syncResult.status).toBe(1);
+    const result = runNode([cliPath, 'check', '.'], {
+      cwd: repoRoot,
+    });
 
-    const strictCheckResult = runNode(
-      [cliPath, 'check', '.', '--strict-placeholders'],
-      {
-        cwd: repoRoot,
-      },
-    );
-    expect(syncResult.stderr).toContain('AGENTS.md validation failed:');
-    expect(syncResult.status).toBe(1);
-    expect(strictCheckResult.status).toBe(1);
-    expect(combinedOutput(strictCheckResult)).toContain(
-      'placeholder text remains',
-    );
-    expect(strictCheckResult.stderr).toContain('AGENTS.md validation failed:');
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('AGENTS.md passed validation.');
+    expect(result.stdout).toContain('src/AGENTS.md passed validation.');
   });
 
-  it('sync refreshes AGENTS files for nested scopes', async () => {
-    const syncRepo = await createFixtureRepo({
-      'README.md': 'hello\n',
-      'src/features/payments/handler.js':
-        'export default function handler() {}\n',
-    });
-
-    const syncResult = runNode([cliPath, 'sync', 'src'], {
-      cwd: syncRepo,
-    });
-
-    expect(syncResult.status).toBe(0);
-    expect(combinedOutput(syncResult)).toContain('Synced AGENTS.md files.');
-    await expect(
-      fs.pathExists(path.join(syncRepo, 'src', 'features', 'AGENTS.md')),
-    ).resolves.toBe(true);
-
-    const nestedScopeRepo = await createFixtureRepo({
-      'README.md': 'hello\n',
-      'docs/reference/api.md': '# API\n',
-    });
-
-    const nestedScopeResult = runNode([cliPath, 'sync', 'docs/reference'], {
-      cwd: nestedScopeRepo,
-    });
-
-    expect(nestedScopeResult.status).toBe(0);
-    await expect(
-      fs.pathExists(
-        path.join(nestedScopeRepo, 'docs', 'reference', 'AGENTS.md'),
-      ),
-    ).resolves.toBe(true);
-  });
-
-  it('check accepts AGENTS.md files that omit the Rules section', async () => {
+  it.each([
+    {
+      label: 'v2 inventory sections',
+      content: `# .\n\n## Directories\n\n- None.\n\n## Files\n\n- \`README.md\`: Readme.\n`,
+      expected: 'remove obsolete "## Directories" section',
+    },
+    {
+      label: 'overview text',
+      content: `# .\n\nRepository overview text.\n\n## Rules\n\n- Keep edits focused.\n`,
+      expected: 'overview text is not allowed before "## Rules"',
+    },
+    {
+      label: 'empty Rules',
+      content: `# .\n\n## Rules\n\n`,
+      expected: '"## Rules" must contain one or more rule bullets',
+    },
+    {
+      label: '- None. Rules',
+      content: `# .\n\n## Rules\n\n- None.\n`,
+      expected: '"## Rules" must contain real rule bullets',
+    },
+    {
+      label: 'legacy Writing Rules',
+      content: `# .\n\n## Writing Rules\n\n- Keep edits focused.\n`,
+      expected: 'use "## Rules", not "## Writing Rules"',
+    },
+    {
+      label: 'custom trailing sections',
+      content: `# .\n\n## Rules\n\n- Keep edits focused.\n\n## Coding Strategy\n\n- Prefer small modules.\n`,
+      expected: 'unsupported section in v3 AGENTS.md: "## Coding Strategy"',
+    },
+  ])('check rejects $label', async ({ content, expected }) => {
     const repoRoot = await createFixtureRepo({
-      'AGENTS.md': `# .
-
-Repository root for a fixture repo with a single docs directory.
-
-## Directories
-
-- \`docs/\`: Documentation entrypoints for the fixture repo.
-
-## Files
-
-- \`README.md\`: Top-level fixture readme.
-`,
+      'AGENTS.md': content,
       'README.md': 'hello\n',
-      'docs/AGENTS.md': `# docs
+    });
 
-Documentation entrypoints for the fixture repo.
+    const result = runNode([cliPath, 'check', 'AGENTS.md'], {
+      cwd: repoRoot,
+    });
 
-## Directories
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('AGENTS.md validation failed:');
+    expect(result.stderr).toContain(expected);
+  });
 
-- None.
-
-## Files
-
-- \`guide.md\`: Primary documentation page.
-`,
+  it('sync normalizes rules-bearing files and prunes rules-empty files', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': `# .\n\nRepository overview.\n\n## Directories\n\n- \`src/\`: Source.\n\n## Files\n\n- \`README.md\`: Readme.\n\n## Rules\n\n- Keep root rules.\n`,
+      'docs/AGENTS.md': `# docs\n\nDocumentation inventory only.\n\n## Directories\n\n- None.\n\n## Files\n\n- \`guide.md\`: Guide.\n`,
       'docs/guide.md': '# Guide\n',
+      'src/AGENTS.md': `# src\n\n## Writing Rules\n\n- Keep source rules.\n`,
+      'src/index.js': 'export const ready = true;\n',
+      'README.md': 'hello\n',
     });
+
+    const result = runNode([cliPath, 'sync', '.'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toContain('Deleted docs/AGENTS.md');
+    expect(result.stderr).toContain('Updated AGENTS.md');
+    expect(result.stderr).toContain('Updated src/AGENTS.md');
+    await expect(
+      fs.pathExists(path.join(repoRoot, 'docs', 'AGENTS.md')),
+    ).resolves.toBe(false);
+    await expect(
+      readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8'),
+    ).resolves.toBe(validAgents('.', ['Keep root rules.']));
+    await expect(
+      readFile(path.join(repoRoot, 'src', 'AGENTS.md'), 'utf8'),
+    ).resolves.toBe(validAgents('src', ['Keep source rules.']));
+    expect(result.stdout).toContain(
+      'Synced AGENTS.md files. Deleted 1, updated 2.',
+    );
 
     const checkResult = runNode([cliPath, 'check', '.'], {
       cwd: repoRoot,
     });
-
     expect(checkResult.status).toBe(0);
-    expect(checkResult.stderr).toBe('');
-    expect(checkResult.stdout).toContain('AGENTS.md validation passed.');
+  });
+
+  it('directory scope validates ancestor chain and scoped descendants', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': validAgents('.', ['Keep root rules.']),
+      'src/AGENTS.md': validAgents('src', ['Keep source rules.']),
+      'src/feature/AGENTS.md': validAgents('src/feature', [
+        'Keep feature rules.',
+      ]),
+      'src/feature/deep/AGENTS.md': validAgents('src/feature/deep', [
+        'Keep deep feature rules.',
+      ]),
+      'other/AGENTS.md': `# other\n\nOverview.\n\n## Rules\n\n- Broken sibling should be ignored.\n`,
+      'src/feature/deep/index.js': 'export const ready = true;\n',
+      'other/index.js': 'export const ignored = true;\n',
+    });
+
+    const result = runNode([cliPath, 'check', 'src/feature'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('AGENTS.md passed validation.');
+    expect(result.stdout).toContain('src/AGENTS.md passed validation.');
+    expect(result.stdout).toContain('src/feature/AGENTS.md passed validation.');
+    expect(result.stdout).toContain(
+      'src/feature/deep/AGENTS.md passed validation.',
+    );
+    expect(result.stdout).not.toContain('other/AGENTS.md');
+  });
+
+  it('directory scope fails when an ancestor AGENTS file is invalid', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': validAgents('.', ['Keep root rules.']),
+      'src/AGENTS.md': `# src\n\nOverview.\n\n## Rules\n\n- Keep source rules.\n`,
+      'src/feature/AGENTS.md': validAgents('src/feature', [
+        'Keep feature rules.',
+      ]),
+      'src/feature/index.js': 'export const ready = true;\n',
+    });
+
+    const result = runNode([cliPath, 'check', 'src/feature'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('src/AGENTS.md');
+    expect(result.stderr).toContain(
+      'overview text is not allowed before "## Rules"',
+    );
+  });
+
+  it('AGENTS file scope handles only the requested file', async () => {
+    const repoRoot = await createFixtureRepo({
+      'AGENTS.md': `# .\n\nOverview.\n\n## Rules\n\n- Broken root should be ignored.\n`,
+      'src/AGENTS.md': validAgents('src', ['Keep source rules.']),
+      'src/index.js': 'export const ready = true;\n',
+    });
+
+    const result = runNode([cliPath, 'check', 'src/AGENTS.md'], {
+      cwd: repoRoot,
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(result.stdout).toContain('src/AGENTS.md passed validation.');
+    expect(result.stdout).not.toContain('AGENTS.md has');
   });
 });
 
 describe('Bundled helper script end-to-end workflows', () => {
-  it('validate-agents reports stale inventory from the packaged script entrypoint', async () => {
+  it('validate-agents reports stale v2 files from the packaged script entrypoint', async () => {
     const repoRoot = await createFixtureRepo({
+      'AGENTS.md': `# .\n\nRepository overview.\n\n## Directories\n\n- None.\n\n## Files\n\n- \`README.md\`: Readme.\n`,
       'README.md': 'hello\n',
     });
 
@@ -384,164 +360,37 @@ describe('Bundled helper script end-to-end workflows', () => {
     });
 
     expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Would delete AGENTS.md');
     expect(result.stderr).toContain('AGENTS.md files are out of date');
     expect(result.stderr).toContain('- AGENTS.md');
   });
 
-  it('sync-agents drops tracked files deleted from the working tree when git inventory is available', async () => {
+  it('sync-agents does not create AGENTS files for targeted directories', async () => {
     const repoRoot = await createFixtureRepo({
-      'AGENTS.md': `# .
-
-Repository root for a fixture repo with a tracked README file.
-
-## Directories
-
-- None.
-
-## Files
-
-- \`README.md\`: Top-level fixture readme.
-`,
-      'README.md': 'hello\n',
-    });
-
-    initializeGitRepository(repoRoot);
-    await fs.remove(path.join(repoRoot, 'README.md'));
-
-    const result = runNode([syncScriptPath, '.'], {
-      cwd: repoRoot,
-    });
-
-    expect(result.status).toBe(0);
-    await expect(
-      readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8'),
-    ).resolves.toContain('## Files\n\n- None.\n');
-  });
-
-  it('sync-agents creates the expected AGENTS files for targeted directories', async () => {
-    const syncRepo = await createFixtureRepo({
       'README.md': 'hello\n',
       'src/lib/index.js': 'export const ready = true;\n',
     });
 
-    const syncResult = runNode([syncScriptPath, 'src'], {
-      cwd: syncRepo,
-    });
-
-    expect(syncResult.status).toBe(0);
-    await expect(
-      fs.pathExists(path.join(syncRepo, 'src', 'lib', 'AGENTS.md')),
-    ).resolves.toBe(true);
-
-    const nestedScopeRepo = await createFixtureRepo({
-      'README.md': 'hello\n',
-      'docs/reference/api.md': '# API\n',
-    });
-
-    const nestedScopeResult = runNode([syncScriptPath, 'docs/reference'], {
-      cwd: nestedScopeRepo,
-    });
-
-    expect(nestedScopeResult.status).toBe(0);
-    await expect(
-      fs.pathExists(
-        path.join(nestedScopeRepo, 'docs', 'reference', 'AGENTS.md'),
-      ),
-    ).resolves.toBe(true);
-  });
-
-  it('validate-agents sync preserves trailing sections when Rules is omitted', async () => {
-    const repoRoot = await createFixtureRepo({
-      'AGENTS.md': `# .
-
-Repository root for a fixture repo that keeps custom trailing metadata.
-
-## Directories
-
-- None.
-
-## Files
-
-- \`README.md\`: Top-level fixture readme.
-
-## AGENTS Hierarchy
-
-- Exclude \`.cache\` from AGENTS scanning.
-`,
-      'README.md': 'hello\n',
-      '.cache/output.txt': 'cache\n',
-    });
-
-    const result = runNode([validateScriptPath, '--sync', '.'], {
+    const result = runNode([syncScriptPath, 'src'], {
       cwd: repoRoot,
     });
 
     expect(result.status).toBe(0);
     await expect(
-      readFile(path.join(repoRoot, 'AGENTS.md'), 'utf8'),
-    ).resolves.toContain('## AGENTS Hierarchy');
-  });
-
-  it('validate-agents reads ignored files and directories from a dedicated section', async () => {
-    const repoRoot = await createFixtureRepo({
-      'AGENTS.md': `# .
-
-Repository root for a fixture repo that documents ignored inventory paths.
-
-## Directories
-
-- None.
-
-## Files
-
-- \`README.md\`: Top-level fixture readme.
-
-## Ignore Files and Directories
-
-- \`.cache/\`: Local cache output ignored by AGENTS scanning.
-- \`debug.log\`: Local debug output ignored by AGENTS scanning.
-`,
-      'README.md': 'hello\n',
-      '.cache/output.txt': 'cache\n',
-      'debug.log': 'debug\n',
-    });
-
-    const result = runNode([validateScriptPath, '--check', 'AGENTS.md'], {
-      cwd: repoRoot,
-    });
-
-    expect(result.status).toBe(0);
-    expect(result.stderr).toBe('');
-    expect(result.stdout).toContain('AGENTS.md validation passed.');
-  });
-
-  it('validate-agents checks the root ignored paths reference example', async () => {
-    const repoRoot = await createFixtureRepo({
-      'AGENTS.md': await loadReferenceExampleContent(
-        rootWithIgnoredPathsReferencePath,
-      ),
-      'README.md': 'hello\n',
-      'package.json': '{\n  "name": "fixture"\n}\n',
-      'docs/guide.md': '# Guide\n',
-      'src/index.js': 'export const ready = true;\n',
-      '.cache/output.txt': 'cache\n',
-      '.changeset/example.md': 'release note\n',
-      'debug.log': 'debug\n',
-    });
-
-    const result = runNode([validateScriptPath, '--check', 'AGENTS.md'], {
-      cwd: repoRoot,
-    });
-
-    expect(result.status).toBe(0);
-    expect(result.stderr).toBe('');
-    expect(result.stdout).toContain('AGENTS.md validation passed.');
+      fs.pathExists(path.join(repoRoot, 'src', 'AGENTS.md')),
+    ).resolves.toBe(false);
+    await expect(
+      fs.pathExists(path.join(repoRoot, 'src', 'lib', 'AGENTS.md')),
+    ).resolves.toBe(false);
   });
 
   it.each(referenceExamples)(
-    'validate-agents checks the $name reference example',
+    'validate-agents checks the reference example for $targetDirectory',
     async (example) => {
-      const repoRoot = await createReferenceExampleRepo(example);
+      const repoRoot = await createFixtureRepo({
+        [`${example.targetDirectory === '.' ? '' : `${example.targetDirectory}/`}AGENTS.md`]:
+          await loadReferenceExampleContent(example.referencePath),
+      });
 
       const result = runNode(
         [validateScriptPath, '--check', `${example.targetDirectory}/AGENTS.md`],
@@ -553,99 +402,37 @@ Repository root for a fixture repo that documents ignored inventory paths.
       expect(result.status).toBe(0);
       expect(result.stderr).toBe('');
       expect(result.stdout).toContain(
-        `${example.targetDirectory}/AGENTS.md passed validation.`,
+        `${example.targetDirectory === '.' ? 'AGENTS.md' : `${example.targetDirectory}/AGENTS.md`} passed validation.`,
       );
     },
   );
 
   it.each(referenceExamples)(
-    'sync-agents keeps the $name reference example in sync',
+    'sync-agents keeps the reference example for $targetDirectory in sync',
     async (example) => {
-      const repoRoot = await createReferenceExampleRepo(example);
+      const agentsPath =
+        example.targetDirectory === '.'
+          ? 'AGENTS.md'
+          : `${example.targetDirectory}/AGENTS.md`;
+      const repoRoot = await createFixtureRepo({
+        [agentsPath]: await loadReferenceExampleContent(example.referencePath),
+      });
       const originalContent = await readFile(
-        path.join(repoRoot, example.targetDirectory, 'AGENTS.md'),
+        path.join(repoRoot, agentsPath),
         'utf8',
       );
 
-      const result = runNode(
-        [syncScriptPath, `${example.targetDirectory}/AGENTS.md`],
-        {
-          cwd: repoRoot,
-        },
-      );
+      const result = runNode([syncScriptPath, agentsPath], {
+        cwd: repoRoot,
+      });
 
       expect(result.status).toBe(0);
-      expect(result.stdout).toContain(
-        `${example.targetDirectory}/AGENTS.md is already in sync.`,
-      );
+      expect(result.stdout).toContain(`${agentsPath} is already in sync.`);
       await expect(
-        readFile(
-          path.join(repoRoot, example.targetDirectory, 'AGENTS.md'),
-          'utf8',
-        ),
+        readFile(path.join(repoRoot, agentsPath), 'utf8'),
       ).resolves.toBe(originalContent);
     },
   );
-
-  it.each(referenceExamples)(
-    'sync-agents creates a valid AGENTS chain for the $name example shape',
-    async (example) => {
-      const repoRoot = await createReferenceExampleRepo(example, {
-        includeAgents: false,
-      });
-
-      const syncResult = runNode([syncScriptPath, example.targetDirectory], {
-        cwd: repoRoot,
-      });
-
-      expect(syncResult.status).toBe(0);
-      await expect(
-        fs.pathExists(
-          path.join(repoRoot, example.targetDirectory, 'AGENTS.md'),
-        ),
-      ).resolves.toBe(true);
-
-      const validateResult = runNode(
-        [validateScriptPath, '--check', `${example.targetDirectory}/AGENTS.md`],
-        {
-          cwd: repoRoot,
-        },
-      );
-
-      expect(validateResult.status).toBe(0);
-      expect(validateResult.stdout).toContain(
-        `${example.targetDirectory}/AGENTS.md passed validation.`,
-      );
-    },
-  );
-
-  it('sync-agents migrates a reference example from Writing Rules to Rules', async () => {
-    const example = referenceExamples[1];
-    const repoRoot = await createReferenceExampleRepo(example, {
-      legacyRulesHeading: true,
-    });
-
-    const result = runNode(
-      [syncScriptPath, `${example.targetDirectory}/AGENTS.md`],
-      {
-        cwd: repoRoot,
-      },
-    );
-
-    expect(result.status).toBe(0);
-    await expect(
-      readFile(
-        path.join(repoRoot, example.targetDirectory, 'AGENTS.md'),
-        'utf8',
-      ),
-    ).resolves.toContain('## Rules');
-    await expect(
-      readFile(
-        path.join(repoRoot, example.targetDirectory, 'AGENTS.md'),
-        'utf8',
-      ),
-    ).resolves.not.toContain('## Writing Rules');
-  });
 });
 
 describe('CLI install end-to-end workflows', () => {

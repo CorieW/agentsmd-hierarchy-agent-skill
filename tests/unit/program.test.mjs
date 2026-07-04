@@ -32,7 +32,7 @@ describe('createProgram', () => {
     }
   });
 
-  it('keeps --strict-placeholders on the check and sync commands', () => {
+  it('does not expose placeholder validation flags in v3', () => {
     const checkCommand = getCommand(createProgram(), 'check');
     const syncCommand = getCommand(createProgram(), 'sync');
 
@@ -40,12 +40,12 @@ describe('createProgram', () => {
       checkCommand.options.some(
         (option) => option.long === '--strict-placeholders',
       ),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       syncCommand.options.some(
         (option) => option.long === '--strict-placeholders',
       ),
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('exposes the install contract flags', () => {
