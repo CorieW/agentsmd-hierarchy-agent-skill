@@ -328,11 +328,11 @@ export function renderCursorCommandFile() {
   return [
     '# AGENTS Hierarchy',
     '',
-    'Use the `agentsmd-hierarchy` CLI to inspect, create, or refresh layered `AGENTS.md` files.',
+    'Use the `agentsmd-hierarchy` CLI to validate, normalize, or prune rules-only `AGENTS.md` files.',
     '',
     'Preferred commands:',
-    '- `agentsmd-hierarchy check <path>` to validate AGENTS coverage.',
-    '- `agentsmd-hierarchy sync <path>` to create or refresh AGENTS.md files.',
+    '- `agentsmd-hierarchy check <path>` to validate existing rules-only AGENTS files.',
+    '- `agentsmd-hierarchy sync <path>` to normalize rules-bearing files and prune rules-empty files.',
     '- Add `--debug` on any command when trace output would help.',
     '',
     'If the CLI is not on `PATH`, fall back to `npx -y agentsmd-hierarchy <subcommand> ...`.',
@@ -342,19 +342,19 @@ export function renderCursorCommandFile() {
 function buildPluginManifest(packageMetadata) {
   return {
     description:
-      'Installable AGENTS Hierarchy plugin bundle for Codex with the packaged skill and CLI helpers.',
+      'Installable AGENTS Hierarchy plugin bundle for Codex with packaged rules-only AGENTS helpers.',
     interface: {
       capabilities: ['Interactive', 'Write'],
       category: 'Productivity',
       defaultPrompt: [
-        'Read the AGENTS chain for this repository and sync stale AGENTS.md files.',
-        'Validate the AGENTS hierarchy under a changed package with debug output.',
-        'Sync a newly added source directory so its AGENTS.md files are created.',
+        'Read the AGENTS chain for this repository and follow the directory rules.',
+        'Validate the rules-only AGENTS files under a changed package with debug output.',
+        'Sync an existing AGENTS.md file so obsolete inventory sections are removed.',
       ],
       developerName: packageMetadata.author,
       displayName: 'AGENTS Hierarchy',
       longDescription:
-        'Packages the AGENTS Hierarchy skill and helper scripts so Codex can validate, sync, and maintain layered AGENTS.md files.',
+        'Packages the AGENTS Hierarchy skill and helper scripts so Codex can validate, normalize, and prune layered rules-only AGENTS.md files.',
       shortDescription:
         'Installable AGENTS Hierarchy skill bundle and helper scripts.',
     },

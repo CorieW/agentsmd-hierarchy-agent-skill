@@ -12,13 +12,6 @@ function addSharedDebugOption(command) {
   );
 }
 
-function addValidateOptions(command) {
-  return addSharedDebugOption(command).option(
-    '--strict-placeholders',
-    'Treat placeholder descriptions as validation errors.',
-  );
-}
-
 async function handleCommandError(error) {
   if (error instanceof CommanderError) {
     if (error.code === 'commander.helpDisplayed') {
@@ -58,7 +51,7 @@ export function createProgram(runtime = {}) {
     .showHelpAfterError()
     .exitOverride();
 
-  addValidateOptions(
+  addSharedDebugOption(
     program
       .command('check [path]')
       .description('Validate AGENTS.md files without changing them.'),
@@ -66,9 +59,6 @@ export function createProgram(runtime = {}) {
     const argv = ['--check'];
     if (targetPath) {
       argv.push(targetPath);
-    }
-    if (options.strictPlaceholders) {
-      argv.push('--strict-placeholders');
     }
     if (options.debug) {
       argv.push('--debug');
@@ -79,17 +69,14 @@ export function createProgram(runtime = {}) {
     }
   });
 
-  addValidateOptions(
+  addSharedDebugOption(
     program
       .command('sync [path]')
-      .description('Create or refresh AGENTS.md files.'),
+      .description('Normalize or prune existing AGENTS.md files.'),
   ).action(async (targetPath, options) => {
     const argv = [];
     if (targetPath) {
       argv.push(targetPath);
-    }
-    if (options.strictPlaceholders) {
-      argv.push('--strict-placeholders');
     }
     if (options.debug) {
       argv.push('--debug');

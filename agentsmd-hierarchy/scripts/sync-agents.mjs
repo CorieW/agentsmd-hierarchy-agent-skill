@@ -1,21 +1,14 @@
 #!/usr/bin/env node
 
 import { pathToFileURL } from 'node:url';
-import {
-  RULES_SECTION_HEADING,
-  runValidateAgentsCommand,
-} from './lib/validate-agents-core.mjs';
+import { runValidateAgentsCommand } from './lib/validate-agents-core.mjs';
 
 export async function runSyncAgentsCommand(rawArgs = [], runtime = {}) {
   const normalizedArgs = rawArgs.includes('--check')
     ? ['--check', ...rawArgs.filter((argument) => argument !== '--check')]
     : ['--sync', ...rawArgs];
 
-  return runValidateAgentsCommand(normalizedArgs, {
-    ...runtime,
-    preferredRulesSectionHeading:
-      normalizedArgs[0] === '--sync' ? RULES_SECTION_HEADING : null,
-  });
+  return runValidateAgentsCommand(normalizedArgs, runtime);
 }
 
 async function main() {
